@@ -1,0 +1,5 @@
+#!/bin/bash
+rm *.o
+rm *.lst
+nasm -g -f elf64 -F dwarf $1.asm -l $1.lst
+ld $1.o -o $1

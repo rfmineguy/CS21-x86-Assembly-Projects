@@ -1,0 +1,52 @@
+     1                                  ; Assembler 32bit template
+     2                                  
+     3                                  bits 32
+     4                                  section .data
+     5                                  
+     6 00000000 57656C636F6D652074-     	openGreet  db "Welcome to my program", 0
+     6 00000009 6F206D792070726F67-
+     6 00000012 72616D00           
+     7 00000016 50726F6772616D2065-     	closeGreet db "Program ending, have a nice day", 0
+     7 0000001F 6E64696E672C206861-
+     7 00000028 76652061206E696365-
+     7 00000031 2064617900         
+     8                                  
+     9 00000036 FF                      	value1 	db 0ffh
+    10 00000037 9909                    	aword  	dw 999h
+    11 00000039 56320000                	adword 	dd 3256h
+    12 0000003D 9509000000000000        	aqword 	dq 995h
+    13 00000045 5E003B0035009000        	arr	dw 94, 59, 53, 90h
+    14 0000004D 2B0036003500            		dw 43, 54, 53
+    15 00000053 537472696E6700          	str1	db 'String', 0	;null terminated char array	
+    16                                  
+    17 0000005A 4D61696E206D656E0D-     	mainMenu db "Main men", 0dh, 0ah, 0dh, 0ah,
+    17 00000063 0A0D0A             
+    18 00000066 3C313E20446F20736F-     		 db "<1> Do something", 0dh, 0ah
+    18 0000006F 6D657468696E670D0A 
+    19 00000078 3C323E20446F20736F-     		 db "<2> Do something", 0dh, 0ah, 0
+    19 00000081 6D657468696E670D0A-
+    19 0000008A 00                 
+    20                                   
+    21                                  section .bss
+    22 00000000 <res 00000001>          	undefByte  resb 1	;reserve a single byte of memory (1 byte)
+    23 00000001 <res 00000002>          	undefWord  resw 1	;reserver a single word of memory (2 bytes)
+    24 00000003 <res 00000004>          	undefDword resd 1	;reserve a single double word of memory (4 bytes)
+    25 00000007 <res 00000008>          	undefQword resq 1	;reserve a single quad word of memory (8 bytes)
+    26                                  
+    27                                  section .text
+    28                                  ;Your program code goes here
+    29                                  
+    30                                  	global _start
+    31                                  _start:
+    32 00000000 90                          nop
+    33                                  	
+    34                                  	;Your program code should go here
+    35 00000001 A1[36000000]            	mov eax, [value1]	;derefference value1 and store the value	
+    36                                  
+    37                                  	;Do not remove/change the lines below here.
+    38                                  	;These exit out of the application and back
+    39                                  	;to linux in an orderly fashion
+    40 00000006 90                      	nop
+    41 00000007 B801000000              	mov eax,1      ; Exit system call value
+    42 0000000C BB00000000              	mov ebx,0      ; Exit return code
+    43 00000011 CD80                    	int 80h        ; Call the kernel

@@ -1,0 +1,29 @@
+     1                                  section .data
+     2 00000000 546869732069732074-     	source db "This is the source string", 0
+     2 00000009 686520736F75726365-
+     2 00000012 20737472696E6700   
+     3                                  		.len equ $-source
+     4                                  	
+     5                                  section .bss
+     6 00000000 <res 000000FF>          	target resb 0ffh
+     7                                  
+     8                                  section .text
+     9                                  	global _start
+    10                                  	_start:
+    11 00000000 90                      	nop
+    12 00000001 48BE-                   	mov rsi, source
+    12 00000003 [0000000000000000] 
+    13 0000000B 48BF-                   	mov rdi, target
+    13 0000000D [0000000000000000] 
+    14 00000015 B91A000000              	mov rcx, source.len
+    15                                  	l1:
+    16 0000001A 8A06                    		mov al, [rsi]
+    17 0000001C 8807                    		mov [rdi], al
+    18 0000001E 48FFC6                  		inc rsi
+    19 00000021 48FFC7                  		inc rdi
+    20 00000024 E2F4                    		loop l1
+    21                                  
+    22 00000026 90                      	nop
+    23 00000027 B83C000000              	mov rax, 60
+    24 0000002C BF00000000              	mov rdi, 0
+    25 00000031 0F05                    	syscall

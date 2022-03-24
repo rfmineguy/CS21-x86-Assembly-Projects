@@ -1,0 +1,38 @@
+     1                                  ; Assembler 32bit template
+     2                                  
+     3                                  bits 32
+     4                                  section .data
+     5                                  ;variables with values go here
+     6 00000000 1020304050              	anArray   db 10h, 20h, 30h, 40h, 50h
+     7                                  	.LENGTHOF equ ($-anArray)
+     8                                  	.SIZEOF   equ ($-anArray)/1
+     9                                  
+    10 00000005 200040006000800000-     	arrArray2 dw 20h, 40h, 60h, 80h, 100h
+    10 0000000E 01                 
+    11                                  	.LENGTHOF equ ($-arrArray2)
+    12                                  	.SIZEOF   equ ($-arrArray2)/2
+    13                                  
+    14                                  section .bss
+    15                                  ;reserved memory goes here
+    16                                  section .text
+    17                                  ;Your program code goes here
+    18                                  
+    19                                  	global _start
+    20                                  _start:
+    21 00000000 90                          nop
+    22                                  	
+    23                                  	;Your program code should go here
+    24                                  
+    25 00000001 B805000000              	mov eax, anArray.LENGTHOF 	;put the number of bytes of 'anArray' into eax
+    26 00000006 B805000000              	mov eax, anArray.SIZEOF		;put the number of entries of 'anArray' into eax
+    27                                  	
+    28 0000000B B80A000000              	mov eax, arrArray2.LENGTHOF 	;put the number of bytes of 'anArray' into eax
+    29 00000010 B805000000              	mov eax, arrArray2.SIZEOF	;put the number of entries of 'anArray' into eax
+    30                                  	
+    31                                  	;Do not remove/change the lines below here.
+    32                                  	;These exit out of the application and back
+    33                                  	;to linux in an orderly fashion
+    34 00000015 90                      	nop
+    35 00000016 B801000000              	mov eax,1      ; Exit system call value
+    36 0000001B BB00000000              	mov ebx,0      ; Exit return code
+    37 00000020 CD80                    	int 80h        ; Call the kernel

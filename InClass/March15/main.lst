@@ -1,0 +1,1042 @@
+     1                                  ;
+     2                                  ;This program will test out the functions library to show the user of number formatted output
+     3                                  ;
+     4                                  
+     5                                  ;
+     6                                  ;Include our external functions library functions
+     7                                  %include "./functions.inc"
+     1                              <1> ;
+     2                              <1> ;Include file for the functions library
+     3                              <1> ;
+     4                              <1> sys_exit	equ	1h
+     5                              <1> sys_read	equ	3h
+     6                              <1> sys_write	equ	4h
+     7                              <1> stdin		equ	0h
+     8                              <1> stdout		equ	1h
+     9                              <1> stderr		equ	3h
+    10                              <1> 
+    11                              <1> ;Swap one String with another
+    12                              <1> ;Stack contents:
+    13                              <1> ;	Address of destination string
+    14                              <1> ;	Address of source string
+    15                              <1> ;Example Usage:
+    16                              <1> ;	push	string1Address
+    17                              <1> ;	push	string2Address
+    18                              <1> ;	push	length
+    19                              <1> ;	call	StringSwap
+    20                              <1> ;
+    21                              <1> extern		StringSwap
+    22                              <1> 
+    23                              <1> ;Compare one String with another
+    24                              <1> ;	If source is less than destination, eax = -1
+    25                              <1> ;	If source is greater than destination, eax = 1
+    26                              <1> ;	If source is equal to destination, eax = 0
+    27                              <1> ;Stack contents:
+    28                              <1> ;	Address of destination string
+    29                              <1> ;	Address of source string
+    30                              <1> ;Example Usage:
+    31                              <1> ;	push	string1Address
+    32                              <1> ;	push	string2Address
+    33                              <1> ;	call	StringCompare
+    34                              <1> ;
+    35                              <1> extern		StringCompare
+    36                              <1> 
+    37                              <1> ;Copy one String to another
+    38                              <1> ;Stack contents:
+    39                              <1> ;	Address of destination string
+    40                              <1> ;	Address of source string
+    41                              <1> ;Example Usage:
+    42                              <1> ;	push	string1Address
+    43                              <1> ;	push	string2Address
+    44                              <1> ;	call	StringCopy
+    45                              <1> ;
+    46                              <1> extern		StringCopy
+    47                              <1> 
+    48                              <1> ;Print the data for a current function/procedure's stack frame
+    49                              <1> ;Notes:
+    50                              <1> ;	This function assumes you have created a valid stack frame
+    51                              <1> ;	Call this function after the stack frame is created an all
+    52                              <1> ;	local function variables have been allocated and before you use
+    53                              <1> ;	the stack for any other purposes
+    54                              <1> ;Stack contents:
+    55                              <1> ;	None
+    56                              <1> ;Example Usage:
+    57                              <1> ;	call	PrintStackFrame
+    58                              <1> ;
+    59                              <1> extern		PrintStackFrame
+    60                              <1> 
+    61                              <1> ;Print a tab character to stdout
+    62                              <1> ;Stack contents:
+    63                              <1> ;	None
+    64                              <1> ;Example Usage:
+    65                              <1> ;	call	PrintTab
+    66                              <1> ;
+    67                              <1> extern		PrintTab
+    68                              <1> 
+    69                              <1> ;Print a string which is not null terminated
+    70                              <1> ;Stack contents:
+    71                              <1> ;	The Address of the string to print
+    72                              <1> ;	The length of the string to print
+    73                              <1> ;Example Usage:
+    74                              <1> ;	push	stringVariable
+    75                              <1> ;	push	stringVariable.len
+    76                              <1> ;	call	PrintText
+    77                              <1> ;
+    78                              <1> extern		PrintText
+    79                              <1> 
+    80                              <1> ;Clears the keyboard buffer until \n or null are encountered
+    81                              <1> ;Stack contents:
+    82                              <1> ;	None
+    83                              <1> ;Example Usage:
+    84                              <1> ;	call	ClearKBuffer
+    85                              <1> ;
+    86                              <1> extern		ClearKBuffer
+    87                              <1> 
+    88                              <1> ;Print a new line to the console
+    89                              <1> ;Stack Contents:
+    90                              <1> ;	None
+    91                              <1> ;Example Usage:
+    92                              <1> ;	call	Printendl
+    93                              <1> ;
+    94                              <1> extern		Printendl
+    95                              <1> 
+    96                              <1> ;Convert and then print a 32bit decimal number
+    97                              <1> ;Stack contents:
+    98                              <1> ;	Value to Convert to an Ascii String
+    99                              <1> ;Example Usage:
+   100                              <1> ;	push DWORD [dwordvariable]
+   101                              <1> ;	call	Print32bitNumDecimal
+   102                              <1> ;
+   103                              <1> extern		Print32bitNumDecimal
+   104                              <1> 
+   105                              <1> ;Convert and then print a 32bit signed decimal number
+   106                              <1> ;Stack contents:
+   107                              <1> ;	Value to Convert to an Ascii String
+   108                              <1> ;Example Usage:
+   109                              <1> ;	push DWORD [dwordvariable]
+   110                              <1> ;	call	Print32bitSNumDecimal
+   111                              <1> ;
+   112                              <1> extern		Print32bitSNumDecimal
+   113                              <1> 
+   114                              <1> ;Convert and then print a 32bit binary number
+   115                              <1> ;Stack contents:
+   116                              <1> ;	Value to Convert to an Ascii String
+   117                              <1> ;Example Usage:
+   118                              <1> ;	push DWORD [dwordvariable]
+   119                              <1> ;	call	Print32bitNumBinary
+   120                              <1> ;
+   121                              <1> extern		Print32bitNumBinary
+   122                              <1> 
+   123                              <1> ;Print a full 32bit binary number including leading zeros
+   124                              <1> ;Stack contents:
+   125                              <1> ;	Value to Convert to an Ascii String
+   126                              <1> ;Example Usage:
+   127                              <1> ;	push DWORD [dwordvariable]
+   128                              <1> ;	call	Print32bitFullBinary
+   129                              <1> ;
+   130                              <1> extern		Print32bitFullBinary
+   131                              <1> 
+   132                              <1> ;Print a full 32-bits binary number in Floating Point format.
+   133                              <1> ;Stack contents:
+   134                              <1> ;	Value to Print to an Ascii String
+   135                              <1> extern		Print32bitFloatBinary
+   136                              <1> 
+   137                              <1> ;Convert and then print a 32bit hex number
+   138                              <1> ;Stack contents:
+   139                              <1> ;	Value to Convert to an Ascii String
+   140                              <1> ;Example Usage:
+   141                              <1> ;	push	DWORD [dWordVariable]
+   142                              <1> ;	call	Print32bitNumHex
+   143                              <1> ;
+   144                              <1> extern		Print32bitNumHex
+   145                              <1> 
+   146                              <1> ;Convert and then print a 32bit octal number
+   147                              <1> ;Stack contents:
+   148                              <1> ;	Value to Convert to an Ascii String
+   149                              <1> ;Example Usage:
+   150                              <1> ;	push	DWORD [dWordVariable]
+   151                              <1> ;	call	Print32bitNumOct
+   152                              <1> ;
+   153                              <1> extern		Print32bitNumOct
+   154                              <1> 
+   155                              <1> ;Print all 32bit Registers to the screen
+   156                              <1> ;Stack contents:
+   157                              <1> ;	None
+   158                              <1> ;Example Usage:
+   159                              <1> ;	call	PrintRegisters
+   160                              <1> ;
+   161                              <1> extern		PrintRegisters
+   162                              <1> 
+   163                              <1> ;Print all of the floating point registers ST0 - ST7
+   164                              <1> ;Stack Contents:
+   165                              <1> ;	None
+   166                              <1> ;Return: 	None
+   167                              <1> ;Example Usage:
+   168                              <1> ;	call	PrintFloatingRegisters
+   169                              <1> extern		PrintFloatingRegisters
+   170                              <1> 
+   171                              <1> ;Print a string with an ending 00h delimiter to the console
+   172                              <1> ;Stack contents:
+   173                              <1> ;	The Address of the string to print
+   174                              <1> ;Example Usage:
+   175                              <1> ;	push	stringVariable
+   176                              <1> ;	call	PrintString
+   177                              <1> ;
+   178                              <1> extern		PrintString
+   179                              <1> 
+   180                              <1> ;Print a string with an ending 00h delimiter to the console Right Justified to a print area
+   181                              <1> ;Stack contents:
+   182                              <1> ;	The Address of the string to print
+   183                              <1> ;	Width of the print area to print into
+   184                              <1> ;Example Usage:
+   185                              <1> ;	push	stringVariable
+   186                              <1> ;	push	widthValue
+   187                              <1> ;	call	PrintRight
+   188                              <1> ;
+   189                              <1> extern		PrintRight
+   190                              <1> 
+   191                              <1> ;Print a string with an ending 00h delimiter to the console Left Justified to a print area
+   192                              <1> ;Stack contents:
+   193                              <1> ;	Address of the String (Stack)
+   194                              <1> ;	Width of the print area to print into
+   195                              <1> ;Example Usage:
+   196                              <1> ;	push	stringVariable
+   197                              <1> ;	push	widthValue
+   198                              <1> ;	call	PrintLeft
+   199                              <1> ;
+   200                              <1> extern		PrintLeft
+   201                              <1> 
+   202                              <1> ;Print a string with an ending 00h delimiter to the console Centered to a print area
+   203                              <1> ;Stack contents:
+   204                              <1> ;	Address of the String (Stack)
+   205                              <1> ;	Width of the print area to print into
+   206                              <1> ;Example Usage:
+   207                              <1> ;	push	stringVariable
+   208                              <1> ;	push	widthValue
+   209                              <1> ;	call	PrintCenter
+   210                              <1> ;
+   211                              <1> extern		PrintCenter
+   212                              <1> 
+   213                              <1> ;Print a space to the console
+   214                              <1> ;Stack contents:
+   215                              <1> ;	None
+   216                              <1> ;Example Usage:
+   217                              <1> ;	call	PrintSpace
+   218                              <1> ;
+   219                              <1> extern		PrintSpace
+   220                              <1> 
+   221                              <1> ;Print a comma followed by a space to the console
+   222                              <1> ;Stack contents:
+   223                              <1> ;	None
+   224                              <1> ;Example Usage:
+   225                              <1> ;	call	PrintComma
+   226                              <1> ;
+   227                              <1> extern		PrintComma
+   228                              <1> 
+   229                              <1> ;Print all byte values found in an array in Hex format
+   230                              <1> ;Stack contents:
+   231                              <1> ;	Address of the Array (Stack)
+   232                              <1> ;	Number of items in the array
+   233                              <1> ;Example Usage:
+   234                              <1> ;	push	addressOfArray
+   235                              <1> ;	push	numItemsInArray
+   236                              <1> ;	call	PrintByteArray
+   237                              <1> ;
+   238                              <1> extern		PrintByteArray
+   239                              <1> 
+   240                              <1> ;Print all byte values found in an array in Decimal format
+   241                              <1> ;Stack contents:
+   242                              <1> ;	Address of the Array (Stack)
+   243                              <1> ;	Number of items in the array
+   244                              <1> ;Example Usage:
+   245                              <1> ;	push	addressOfArray
+   246                              <1> ;	push	numItemsInArray
+   247                              <1> ;	call	PrintByteArrayDec
+   248                              <1> ;
+   249                              <1> extern		PrintByteArrayDec
+   250                              <1> 
+   251                              <1> ;Print all signed byte values found in an array in Decimal format
+   252                              <1> ;Stack contents:
+   253                              <1> ;	Address of the Array (Stack)
+   254                              <1> ;	Number of items in the array
+   255                              <1> ;Example Usage:
+   256                              <1> ;	push	addressOfArray
+   257                              <1> ;	push	numItemsInArray
+   258                              <1> ;	call	PrintSByteArrayDec
+   259                              <1> ;
+   260                              <1> extern		PrintSByteArrayDec
+   261                              <1> 
+   262                              <1> ;Print all word values found in an array in Hex format
+   263                              <1> ;Stack contents:
+   264                              <1> ;	Address of the Array (Stack)
+   265                              <1> ;	Number of items in the array
+   266                              <1> ;Example Usage:
+   267                              <1> ;	push	addressOfArray
+   268                              <1> ;	push	numItemsInArray
+   269                              <1> ;	call	PrintWordArray
+   270                              <1> ;
+   271                              <1> extern		PrintWordArray
+   272                              <1> 
+   273                              <1> ;Print all word values found in an array in Decimal format
+   274                              <1> ;Stack contents:
+   275                              <1> ;	Address of the Array (Stack)
+   276                              <1> ;	Number of items in the array
+   277                              <1> ;Example Usage:
+   278                              <1> ;	push	addressOfArray
+   279                              <1> ;	push	numItemsInArray
+   280                              <1> ;	call	PrintWordArrayDec
+   281                              <1> ;
+   282                              <1> extern		PrintWordArrayDec
+   283                              <1> 
+   284                              <1> ;Print all signed word values found in an array in Decimal format
+   285                              <1> ;Stack contents:
+   286                              <1> ;	Address of the Array (Stack)
+   287                              <1> ;	Number of items in the array
+   288                              <1> ;Example Usage:
+   289                              <1> ;	push	addressOfArray
+   290                              <1> ;	push	numItemsInArray
+   291                              <1> ;	call	PrintSWordArrayDec
+   292                              <1> ;
+   293                              <1> extern		PrintSWordArrayDec
+   294                              <1> 
+   295                              <1> ;Print all Double Word values found in an array in Hex format
+   296                              <1> ;Stack contents:
+   297                              <1> ;	Address of the Array (Stack)
+   298                              <1> ;	Number of items in the array
+   299                              <1> ;Example Usage:
+   300                              <1> ;	push	addressOfArray
+   301                              <1> ;	push	numItemsInArray
+   302                              <1> ;	call	PrintDWordArray
+   303                              <1> ;
+   304                              <1> extern		PrintDWordArray
+   305                              <1> 
+   306                              <1> ;Print all Double Word values found in an array in Decimal format
+   307                              <1> ;Stack contents:
+   308                              <1> ;	Address of the Array (Stack)
+   309                              <1> ;	Number of items in the array
+   310                              <1> ;Example Usage:
+   311                              <1> ;	push	addressOfArray
+   312                              <1> ;	push	numItemsInArray
+   313                              <1> ;	call	PrintDWordArrayDec
+   314                              <1> ;
+   315                              <1> extern		PrintDWordArrayDec
+   316                              <1> 
+   317                              <1> ;Print all signed Double Word values found in an array in Decimal format
+   318                              <1> ;Stack contents:
+   319                              <1> ;	Address of the Array (Stack)
+   320                              <1> ;	Number of items in the array
+   321                              <1> ;Example Usage:
+   322                              <1> ;	push	addressOfArray
+   323                              <1> ;	push	numItemsInArray
+   324                              <1> ;	call	PrintSDWordArrayDec
+   325                              <1> ;
+   326                              <1> extern		PrintSDWordArrayDec
+   327                              <1> 
+   328                              <1> ;Print a Double-word floating point number
+   329                              <1> ;This version uses the integer extraction power of the FPU instead of moving bits
+   330                              <1> ;	around to extract the exponent and left/right mantissa's making this a
+   331                              <1> ;	much easier and shorter algorithm
+   332                              <1> ;Stack Contents:
+   333                              <1> ;	The floating point number to print
+   334                              <1> ;	The number of fractional Digits to print
+   335                              <1> ;Return:
+   336                              <1> ;	None
+   337                              <1> ;Example Usage:
+   338                              <1> ;	push	[numberToPrint]
+   339                              <1> ;	push	[fractionalDigits]
+   340                              <1> ;	call	PrintDWFloat
+   341                              <1> extern		PrintDWFloat
+   342                              <1> 
+   343                              <1> ;Print a Double-word floating point number in scientific notation
+   344                              <1> ;This version uses the integer extraction power of the FPU instead of moving bits
+   345                              <1> ;	around to extract the exponent and left/right mantissa's making this a
+   346                              <1> ;	much easier and shorter algorithm
+   347                              <1> ;Stack Contents:
+   348                              <1> ;	The floating point number to print
+   349                              <1> ;	The number of fractional Digits to print
+   350                              <1> ;Return:
+   351                              <1> ;	None
+   352                              <1> ;Example Usage:
+   353                              <1> ;	push	[numberToPrint]
+   354                              <1> ;	push	[fractionalDigits]
+   355                              <1> ;	call	PrintDWFloatSN
+   356                              <1> extern		PrintDWFloatSN
+   357                              <1> 
+   358                              <1> ;Get a random number from the CPU
+   359                              <1> ;Stack contents:
+   360                              <1> ;	The maximum value of the random number
+   361                              <1> ;	Signed = 1, Unsigned = 0
+   362                              <1> ;Return Value:
+   363                              <1> ;	eax = Random number value
+   364                              <1> ;Example Usage:
+   365                              <1> ;	push 	DWORD 200			;Will create a random number no greater than 200
+   366                              <1> ;	push	DWORD 1				;1 = signed, 0 = uinsigned
+   367                              <1> ;	call	GetRandomInt
+   368                              <1> ;
+   369                              <1> extern		GetRandomInt
+   370                              <1> 
+   371                              <1> ;Return, in eax, an integer entered by the user
+   372                              <1> ;Stack contents:
+   373                              <1> ;	none
+   374                              <1> ;Example Usage:
+   375                              <1> ;		call	InputInt
+   376                              <1> extern		InputInt
+   377                              <1> 
+   378                              <1> ;Call the necessary interrupt with the necessary register values to read data from the keyboard
+   379                              <1> ;Stack Contents:
+   380                              <1> ;	Address of keyboard buffer
+   381                              <1> ;	Size of the keyboard buffer
+   382                              <1> ;Return:
+   383                              <1> ;	eax will contain the number of characters the user input
+   384                              <1> ;Example Usage:
+   385                              <1> ;	push	readbuffer
+   386                              <1> ;	push	readbuffer.len
+   387                              <1> ;	call	ReadText
+   388                              <1> extern		ReadText
+   389                              <1> 
+   390                              <1> ;Call the necessary interrupt with the necessary register values to read data from the keyboard
+   391                              <1> ;Stack Contents:
+   392                              <1> ;	Address of the string to print
+   393                              <1> ;	Address of keyboard buffer
+   394                              <1> ;	Size of the keyboard buffer
+   395                              <1> ;Return:
+   396                              <1> ;	eax will contain the number of characters input
+   397                              <1> ;Example Usage:
+   398                              <1> ;	push	inputPromptVariable
+   399                              <1> ;	push	keyboardBufferVariable
+   400                              <1> ;	push	keyboardBufferVariable.len  ;This is the maximum size of the buffer
+   401                              <1> ;	call	ReadTextWPrompt
+   402                              <1> extern		ReadTextWPrompt
+   403                              <1> 
+   404                              <1> ;Call the necessary interrupt with the necessary register values to read the system time Hour
+   405                              <1> ;Stack Contents:
+   406                              <1> ;	None
+   407                              <1> ;Return:  
+   408                              <1> ;	eax:  The current hour
+   409                              <1> ;Example Usage:
+   410                              <1> ;	call	GetCurrentHour
+   411                              <1> extern		GetCurrentHour
+   412                              <1> 
+   413                              <1> ;Call the necessary interrupt with the necessary register values to read the system time Minute
+   414                              <1> ;Stack Contents:
+   415                              <1> ;	None
+   416                              <1> ;Return:  
+   417                              <1> ;	eax:  The current minute
+   418                              <1> ;Example Usage:
+   419                              <1> ;	call	GetCurrentMinute
+   420                              <1> extern		GetCurrentMinute
+   421                              <1> 
+   422                              <1> ;Call the necessary interrupt with the necessary register values to read the system time Second
+   423                              <1> ;Stack Contents:
+   424                              <1> ;	None
+   425                              <1> ;Return:  
+   426                              <1> ;	eax:  The current second
+   427                              <1> ;Example Usage:
+   428                              <1> ;	call	GetCurrentSecond
+   429                              <1> extern		GetCurrentSecond
+   430                              <1> 
+   431                              <1> ;Call the function to get the system time and then print it
+   432                              <1> ;Stack Contents:
+   433                              <1> ;	None
+   434                              <1> ;Return:  
+   435                              <1> ;	None
+   436                              <1> ;Example Usage:
+   437                              <1> ;	call	PrintSystemTime
+   438                              <1> extern		PrintSystemTime
+   439                              <1> 
+   440                              <1> ;Call the function to get the CPU's Time Stamp Counter
+   441                              <1> ;Stack Contents:
+   442                              <1> ;	None
+   443                              <1> ;Return:  
+   444                              <1> ;	eax: The time stamp counter int he CPU
+   445                              <1> ;Example Usage:
+   446                              <1> ;	call	GetTSC
+   447                              <1> extern		GetTSC
+   448                              <1> 
+   449                              <1> ;An Internal function used to get the system time hours, minutes, seconds
+   450                              <1> ;Stack Contents:
+   451                              <1> ; None
+   452                              <1> ;Return: 
+   453                              <1> ;	None
+   454                              <1> ;Example Usage
+   455                              <1> ;   call GetSystemTime
+   456                              <1> extern		GetSystemTime
+   457                              <1> 
+   458                              <1> ;Input UnSigned Int
+   459                              <1> ;This function will let the user input an integer returned into the EAX register
+   460                              <1> ;Stack Contents:
+   461                              <1> ;	None
+   462                              <1> ;Return: 	eax will contain the usigned ingeter
+   463                              <1> ;			Carry flag will be set if invalid integer was input
+   464                              <1> ;Example Usage:
+   465                              <1> ;	call	InputInt
+   466                              <1> ;	Note: eax will contain the value of the unsigned integer entered
+   467                              <1> ;	jnc		validIntegerInput
+   468                              <1> ;	Otherwise, an invalid integer was input
+   469                              <1> extern		InputUInt
+   470                              <1> 
+   471                              <1> ;Input Signed Int
+   472                              <1> ;This function will let the user input a signed integer and put the value
+   473                              <1> ;into the EAX register.
+   474                              <1> ;Stack Contents:
+   475                              <1> ;	None
+   476                              <1> ;Return: 	eax will contain the usigned ingeter
+   477                              <1> ;			Carry flag will be set if invalid integer was input
+   478                              <1> ;Example Usage:
+   479                              <1> ;	call	InputSInt
+   480                              <1> ;	Note: eax will contain the value of the signed integer entered
+   481                              <1> ;	jnc		validIntegerInput
+   482                              <1> ;	Otherwise, an invalid integer was input
+   483                              <1> extern		InputSInt
+   484                              <1> 
+   485                              <1> ;Input Binary Number
+   486                              <1> ;This function will let the user input a string, then it will check it to make sure it
+   487                              <1> ;is a binary string.  It will then convert the ASCII string into a DWORD and return
+   488                              <1> ;that value in the EAX register.
+   489                              <1> ;Stack Contents:
+   490                              <1> ;	None
+   491                              <1> ;Return: 	eax will contain the numeric binary value
+   492                              <1> ;			Carry flag will be set if invalid binary number was input
+   493                              <1> ;Example Usage:
+   494                              <1> ;	call	InputBin
+   495                              <1> ;	jnc		ValidBinLabel
+   496                              <1> ;	otherwise, a problem occured - print an error message
+   497                              <1> extern		InputBin
+   498                              <1> 
+   499                              <1> ;This function will let the user input a string, then it will check it to make sure it
+   500                              <1> ;is a hexidecimal string.  It will then convert the ASCII string into a DWORD and return
+   501                              <1> ;that value in the EAX register.
+   502                              <1> ;Stack Contents:
+   503                              <1> ;	None
+   504                              <1> ;Return: 	eax will contain the numeric hexidecimal value
+   505                              <1> ;			Carry flag will be set if invalid hex number was input
+   506                              <1> ;Example Usage:
+   507                              <1> ;	call	InputHex
+   508                              <1> ;	jnc		ValidHexLabel
+   509                              <1> ;	otherwise, a problem occured - print an error message
+   510                              <1> extern		InputHex
+   511                              <1> 
+   512                              <1> ;Input a Floating Point Number
+   513                              <1> ;This function will let the user input a string, then it will check it to make sure it
+   514                              <1> ;is a valid floating point number.  It will then convert the ASCII string into a EWORD
+   515                              <1> ;and return that value in the EAX register.
+   516                              <1> ;Stack Contents:
+   517                              <1> ;	None
+   518                              <1> ;Return: 	eax and ST(0) will contain the number
+   519                              <1> ;			Carry flag will be set if invalid number was input
+   520                              <1> ;Example Usage:
+   521                              <1> ;	call	InputFloat
+   522                              <1> ;	jnc		ValidFloatLabel
+   523                              <1> ;	otherwise, a problem occured - print an error message
+   524                              <1> extern		InputFloat
+   525                              <1> 
+   526                              <1> ;Calculate the Average in a Double Word Array
+   527                              <1> ;Stack Contents:
+   528                              <1> ;			ArrayAddress
+   529                              <1> ;			Number of Items in the Array
+   530                              <1> ;Return:	eax will contain the average
+   531                              <1> ;Example Usage:
+   532                              <1> ;	push	addressofarray
+   533                              <1> ;	push	numberOfItemsInArray
+   534                              <1> ;	call	DWArrayAverage
+   535                              <1> extern		DWArrayAverage
+   536                              <1> 
+   537                              <1> ;Calculate the Average in a Word Array
+   538                              <1> ;Stack Contents:
+   539                              <1> ;			ArrayAddress
+   540                              <1> ;			Number of Items in the Array
+   541                              <1> ;Return:	eax will contain the average
+   542                              <1> ;Example Usage:
+   543                              <1> ;	push	addressofarray
+   544                              <1> ;	push	numberOfItemsInArray
+   545                              <1> ;	call	WArrayAverage
+   546                              <1> extern		WArrayAverage
+   547                              <1> 
+   548                              <1> ;Calculate the Average in a Byte Array
+   549                              <1> ;Stack Contents:
+   550                              <1> ;			ArrayAddress
+   551                              <1> ;			Number of Items in the Array 
+   552                              <1> ;Return:	eax will contain the average
+   553                              <1> ;Example Usage:
+   554                              <1> ;	push	addressofarray
+   555                              <1> ;	push	numberOfItemsInArray
+   556                              <1> ;	call	BArrayAverage
+   557                              <1> extern		BArrayAverage
+   558                              <1> 
+   559                              <1> ;Allocate some memory (x bytes)	and return the high address to EAX
+   560                              <1> ;Stack Contents:
+   561                              <1> ;	Number of BYTES to add to memory
+   562                              <1> ;Return: 	EAX will contain the new high memory address
+   563                              <1> ;Example Usage:
+   564                              <1> ;	push	DWORD 1024			;increase memory by 1024 bytes
+   565                              <1> ;	call	AllocateBytes
+   566                              <1> extern		AllocateBytes
+   567                              <1> 
+   568                              <1> ;Free some memory (x bytes)	and return the high address to EAX
+   569                              <1> ;Stack Contents:
+   570                              <1> ;	Number of BYTES to remove from memory
+   571                              <1> ;Return: 	EAX will contain the new high memory address
+   572                              <1> ;Example Usage:
+   573                              <1> ;	push	DWORD 1024			;reduce memory by 1024 bytes
+   574                              <1> ;	call	FreeBytes
+   575                              <1> extern		FreeBytes
+   576                              <1> 
+   577                              <1> ;Allocate some memory as a-word array
+   578                              <1> ;Stack Contents:
+   579                              <1> ;	Number of WORDS to allocate
+   580                              <1> ;Return:	eax will contain highest address of this memory
+   581                              <1> ;Example Usage:
+   582                              <1> ;	push	DWORD 1024			;increase memory by 2048 bytes
+   583                              <1> ;	call	AllocateWORDArray
+   584                              <1> extern		AllocateWORDArray
+   585                              <1> 
+   586                              <1> ;Allocate some memory as a double-word array
+   587                              <1> ;Stack Contents:
+   588                              <1> ;	Number of DWORDS to allocate 
+   589                              <1> ;Return:	eax will contain highest address of this memory
+   590                              <1> ;Example Usage:
+   591                              <1> ;	push	DWORD 1024			;increase memory by 4096 bytes
+   592                              <1> ;	call	AllocateDWORDArray
+   593                              <1> extern		AllocateDWORDArray
+   594                              <1> 
+   595                              <1> ;Simple xor encryption/decryption of a string using a user entered key
+   596                              <1> ;Stack Contents:
+   597                              <1> ;	String address to encrypt/decrypt (Stack ebp + 24)
+   598                              <1> ;	Length of the string to encrypt (Stack ebp + 20)
+   599                              <1> ;	string address to be used as a key (Stack ebp + 16)
+   600                              <1> ;	integer value indicating the length of the key (Stack ebp + 12)
+   601                              <1> ;	string address where the encrypted/decrypted data should go (Stack ebp + 8)
+   602                              <1> ;Return:	Total bytes encrypted in eax
+   603                              <1> ;Example Usage:
+   604                              <1> ;	push	Stringaddress
+   605                              <1> ;	push	stringlength
+   606                              <1> ;	push	keystringaddress
+   607                              <1> ;	push	lengthofkey
+   608                              <1> ;	push	resultstringaddress
+   609                              <1> ;	call	EncryptString
+   610                              <1> extern		EncryptString
+   611                              <1> 
+   612                              <1> ;Get the length of a string based on a null (00) delimeter
+   613                              <1> ;Stack Contents:
+   614                              <1> ;	Address of the string
+   615                              <1> ;Return:	Size of the string in eax
+   616                              <1> ;Example Usage:
+   617                              <1> ;	push	addressofstring
+   618                              <1> ;	call	StringSize
+   619                              <1> extern		StringSize
+   620                              <1> 
+   621                              <1> ;Calculate the GCD of two numbers passed to this function
+   622                              <1> ;Stack Contents:
+   623                              <1> ;	Integer #1 and Integer #2 in the stack
+   624                              <1> ;Return:	GCD in eax
+   625                              <1> ;Example Usage:
+   626                              <1> ;	push	firstInteger
+   627                              <1> ;	push	secondInteger
+   628                              <1> ;	call	CalcGCD
+   629                              <1> extern		CalcGCD
+   630                              <1> 
+   631                              <1> ;Calculate the factorial of a number passed to this function
+   632                              <1> ;Stack Contents:
+   633                              <1> ;	Integer number in the stack
+   634                              <1> ;Return:	Factorial of x in eax
+   635                              <1> ;Example Usage:
+   636                              <1> ;	push	aninteger
+   637                              <1> ;	call	CalcFactorial
+   638                              <1> extern		CalcFactorial
+   639                              <1> 
+   640                              <1> ;Calculate the factorial of a number passed to this function
+   641                              <1> ;Stack Contents:
+   642                              <1> ;	Integer number in the stack
+   643                              <1> ;Return:	Factorial of x in eax as a floating point value
+   644                              <1> ;Example Usage:
+   645                              <1> ;	push	aninteger
+   646                              <1> ;	call	CalcFactorialFloat
+   647                              <1> extern		CalcFactorialFloat
+   648                              <1> 
+   649                              <1> ;Set the carry flag if the floating poing number pushed onto the Stack
+   650                              <1> ;is a +NAN, -NAN, +Infinity or -Infinity
+   651                              <1> ;Stack Contents:
+   652                              <1> ; 	DWORD Floating Point number (Stack)
+   653                              <1> ;Return: Carry Flag Set if NAN, Clear if OK
+   654                              <1> ;Example Usage
+   655                              <1> ;   push  DWORD [floatingVariable]
+   656                              <1> ;   call  IsNAN
+   657                              <1> extern    IsNAN
+   658                              <1> 
+   659                              <1> ;Print the date in the format mm/dd/yyyy
+   660                              <1> ;Stack Contents:
+   661                              <1> ; 	None
+   662                              <1> ;Return: None
+   663                              <1> ;Example Usage
+   664                              <1> ;   call PrintSystemDateEng
+   665                              <1> extern		PrintSystemDateEng
+   666                              <1> 
+   667                              <1> ;Print the date in the format yyyy/mm/dd
+   668                              <1> ;Stack Contents:
+   669                              <1> ; 	None
+   670                              <1> ;Return: None
+   671                              <1> ;Example Usage
+   672                              <1> ;   call PrintSystemDateEuro
+   673                              <1> extern		PrintSystemDateEuro
+   674                              <1> 
+   675                              <1> ;Convert and then return in a byte array a64-but number in decimal format
+   676                              <1> ;Stack contents:
+   677                              <1> ;	Value to Convert to an Ascii String
+   678                              <1> ;	Address of byte array to contain the result
+   679                              <1> ;Return Value:
+   680                              <1> ;	eax = Number of characters returned
+   681                              <1> ;Example Usage:
+   682                              <1> ;	push 	DWORD [doublewordvariable]
+   683                              <1> ;	push 	stringbuffer
+   684                              <1> ;	call	ToString32bitNumDecimal
+   685                              <1> ;
+   686                              <1> extern		ToString32bitNumDecimal
+   687                              <1> 
+   688                              <1> ;Convert and then return in a byte array a 64bit signed number in decimal format
+   689                              <1> ;Stack contents:
+   690                              <1> ;	Value to Convert to an Ascii String
+   691                              <1> ;	Address of byte array to contain the result
+   692                              <1> ;Return Value:
+   693                              <1> ;	eax = Number of characters returned
+   694                              <1> ;Example Usage:
+   695                              <1> ;	push 	DWORD [doublewordvariable]
+   696                              <1> ;	push 	stringbuffer
+   697                              <1> ;	call	ToString32bitSNumDecimal
+   698                              <1> ;
+   699                              <1> extern		ToString32bitSNumDecimal
+   700                              <1> 
+   701                              <1> ;Get the system date in English format and return to the calling function in th array
+   702                              <1> ;	provided
+   703                              <1> ;Stack contents:
+   704                              <1> ;	Address of byte array to contain the result
+   705                              <1> ;Return Value:
+   706                              <1> ;	eax = Number of characters returned
+   707                              <1> ;Example Usage:
+   708                              <1> ;	push 	stringbuffer
+   709                              <1> ;	call	GetEngDateString
+   710                              <1> ;
+   711                              <1> extern		GetEngDateString
+   712                              <1> 
+   713                              <1> ;Get the system date in European format and return to the calling function in th array
+   714                              <1> ;	provided
+   715                              <1> ;Stack contents:
+   716                              <1> ;	Address of byte array to contain the result
+   717                              <1> ;Return Value:
+   718                              <1> ;	eax = Number of characters returned
+   719                              <1> ;Example Usage:
+   720                              <1> ;	push 	stringbuffer
+   721                              <1> ;	call	GetEuroDateString
+   722                              <1> ;
+   723                              <1> extern		GetEuroDateString
+   724                              <1> 
+   725                              <1> ;Get the system time and return to the calling function in th array
+   726                              <1> ;	provided
+   727                              <1> ;Stack contents:
+   728                              <1> ;	Address of byte array to contain the result
+   729                              <1> ;Return Value:
+   730                              <1> ;	eax = Number of characters returned
+   731                              <1> ;Example Usage:
+   732                              <1> ;	push 	stringbuffer
+   733                              <1> ;	call	GetTimeString
+   734                              <1> ;
+   735                              <1> extern		GetTimeString
+   736                              <1> 
+   737                              <1> ;Calculate the Variance from an array of numbers
+   738                              <1> ;Stack contents:
+   739                              <1> ;	Address of sample array of Double words
+   740                              <1> ;	The number of samples to process
+   741                              <1> ;Return Value:
+   742                              <1> ;	eax = Calculated Variance
+   743                              <1> ;Example Usage:
+   744                              <1> ;	push 	sampleArray			;Address of the array of numeric samples
+   745                              <1> ;	push	10					;process 10 of the numbers in the array
+   746                              <1> ;	call	CalcVariance
+   747                              <1> ;
+   748                              <1> extern		CalcVariance
+   749                              <1> 
+   750                              <1> ;Calculate the Standard Deviation from an array of numbers
+   751                              <1> ;Stack contents:
+   752                              <1> ;	Address of sample array of Double words
+   753                              <1> ;	The number of samples to process
+   754                              <1> ;Return Value:
+   755                              <1> ;	eax = Calculated Standard Deviation
+   756                              <1> ;Example Usage:
+   757                              <1> ;	push 	sampleArray			;Address of the array of numeric samples
+   758                              <1> ;	push	10					;process 10 of the numbers in the array
+   759                              <1> ;	call	CalcStdDev
+   760                              <1> ;
+   761                              <1> extern		CalcStdDev
+   762                              <1> 
+   763                              <1> ;Calculate the Mean from an array of numbers
+   764                              <1> ;Stack contents:
+   765                              <1> ;	Address of sample array of Double words
+   766                              <1> ;	The number of samples to process
+   767                              <1> ;Return Value:
+   768                              <1> ;	eax = Calculated Mean
+   769                              <1> ;Example Usage:
+   770                              <1> ;	push 	sampleArray			;Address of the array of numeric samples
+   771                              <1> ;	push	10					;process 10 of the numbers in the array
+   772                              <1> ;	call	CalcMean
+   773                              <1> ;
+   774                              <1> extern		CalcMean
+   775                              <1> 
+   776                              <1> ;Fills an array with random double values
+   777                              <1> ;Stack contents:
+   778                              <1> ;	Address of array of Double words
+   779                              <1> ;	The number of samples to process
+   780                              <1> ;	Maximum value of the random number(s)
+   781                              <1> ;	Signed = 1, Unsigned = 0
+   782                              <1> ;Return Value:
+   783                              <1> ;	Nothing
+   784                              <1> ;Example Usage:
+   785                              <1> ;	push 	sampleArray			;Address of the array of numeric samples
+   786                              <1> ;	push	10					;process 10 of the numbers in the array
+   787                              <1> ;	push	500					;The maximum random value should be 500
+   788                              <1> ;	push	0					;Unsigned only
+   789                              <1> ;	call	RandomArray
+   790                              <1> ;
+   791                              <1> extern		RandomArray
+   792                              <1> 
+     8                                  
+     9                                  SECTION .data
+    10 00000000 57656C636F6D652074-     	openPrompt	db	"Welcome to my Program", 0h
+    10 00000009 6F206D792050726F67-
+    10 00000012 72616D00           
+    11 00000016 50726F6772616D2065-     	closePrompt	db	"Program ending, have a nice day", 0h
+    11 0000001F 6E64696E672C206861-
+    11 00000028 76652061206E696365-
+    11 00000031 2064617900         
+    12                                  		
+    13                                  
+    14                                  SECTION .bss
+    15 00000000 <res 00000FA0>          	myArray				resd	1000
+    16                                  		.sizeof			equ $-myArray													;# of bytes in array
+    17                                  		.lengthof		equ myArray.sizeof / 4								;# of elements in array
+    18                                  		.type				equ myArray.sizeof / myArray.lengthof	;Size of each item in the array
+    19                                  
+    20                                  SECTION     .text
+    21                                  	global      _start
+    22                                  
+    23                                  _start:
+    24 00000000 90                      	nop
+    25                                  	
+    26 00000001 68[00000000]                push	openPrompt
+    27 00000006 E8(00000000)                call	PrintString
+    28 0000000B E8(00000000)                call	Printendl
+    29                                  
+    30                                  		label:
+    31 00000010 B900000000              			mov ecx, 0
+    32 00000015 BB01000000              			mov ebx, 1
+    33 0000001A B809000000              			mov eax, 9
+    34 0000001F B900000000              			mov ecx, 0
+    35 00000024 BB01000000              			mov ebx, 1
+    36 00000029 B809000000              			mov eax, 9
+    37 0000002E B900000000              			mov ecx, 0
+    38 00000033 BB01000000              			mov ebx, 1
+    39 00000038 B809000000              			mov eax, 9
+    40 0000003D B900000000              			mov ecx, 0
+    41 00000042 BB01000000              			mov ebx, 1
+    42 00000047 B809000000              			mov eax, 9
+    43 0000004C B900000000              			mov ecx, 0
+    44 00000051 BB01000000              			mov ebx, 1
+    45 00000056 B809000000              			mov eax, 9
+    46 0000005B B900000000              			mov ecx, 0
+    47 00000060 BB01000000              			mov ebx, 1
+    48 00000065 B809000000              			mov eax, 9
+    49 0000006A B900000000              			mov ecx, 0
+    50 0000006F BB01000000              			mov ebx, 1
+    51 00000074 B809000000              			mov eax, 9
+    52 00000079 B900000000              			mov ecx, 0
+    53 0000007E BB01000000              			mov ebx, 1
+    54 00000083 B809000000              			mov eax, 9
+    55 00000088 B809000000              			mov eax, 9
+    56 0000008D B900000000              			mov ecx, 0
+    57 00000092 BB01000000              			mov ebx, 1
+    58 00000097 B809000000              			mov eax, 9
+    59 0000009C B900000000              			mov ecx, 0
+    60 000000A1 BB01000000              			mov ebx, 1
+    61 000000A6 B809000000              			mov eax, 9
+    62 000000AB B900000000              			mov ecx, 0
+    63 000000B0 BB01000000              			mov ebx, 1
+    64 000000B5 B809000000              			mov eax, 9
+    65 000000BA B900000000              			mov ecx, 0
+    66 000000BF BB01000000              			mov ebx, 1
+    67 000000C4 B809000000              			mov eax, 9
+    68 000000C9 B900000000              			mov ecx, 0
+    69 000000CE BB01000000              			mov ebx, 1
+    70 000000D3 B809000000              			mov eax, 9
+    71 000000D8 B900000000              			mov ecx, 0
+    72 000000DD BB01000000              			mov ebx, 1
+    73 000000E2 B809000000              			mov eax, 9
+    74 000000E7 BB01000000              			mov ebx, 1
+    75 000000EC B809000000              			mov eax, 9
+    76 000000F1 B900000000              			mov ecx, 0
+    77 000000F6 BB01000000              			mov ebx, 1
+    78 000000FB B809000000              			mov eax, 9
+    79 00000100 B900000000              			mov ecx, 0
+    80 00000105 BB01000000              			mov ebx, 1
+    81 0000010A B809000000              			mov eax, 9
+    82 0000010F B900000000              			mov ecx, 0
+    83 00000114 BB01000000              			mov ebx, 1
+    84 00000119 B809000000              			mov eax, 9
+    85 0000011E B900000000              			mov ecx, 0
+    86 00000123 BB01000000              			mov ebx, 1
+    87 00000128 B809000000              			mov eax, 9
+    88 0000012D B900000000              			mov ecx, 0
+    89 00000132 BB01000000              			mov ebx, 1
+    90 00000137 B809000000              			mov eax, 9
+    91 0000013C B900000000              			mov ecx, 0
+    92 00000141 BB01000000              			mov ebx, 1
+    93 00000146 B809000000              			mov eax, 9
+    94 0000014B BB01000000              			mov ebx, 1
+    95 00000150 B809000000              			mov eax, 9
+    96 00000155 B900000000              			mov ecx, 0
+    97 0000015A BB01000000              			mov ebx, 1
+    98 0000015F B809000000              			mov eax, 9
+    99 00000164 B900000000              			mov ecx, 0
+   100 00000169 BB01000000              			mov ebx, 1
+   101 0000016E B809000000              			mov eax, 9
+   102 00000173 B900000000              			mov ecx, 0
+   103 00000178 BB01000000              			mov ebx, 1
+   104 0000017D B809000000              			mov eax, 9
+   105 00000182 B900000000              			mov ecx, 0
+   106 00000187 BB01000000              			mov ebx, 1
+   107 0000018C B809000000              			mov eax, 9
+   108 00000191 B900000000              			mov ecx, 0
+   109 00000196 BB01000000              			mov ebx, 1
+   110 0000019B B809000000              			mov eax, 9
+   111 000001A0 B900000000              			mov ecx, 0
+   112 000001A5 BB01000000              			mov ebx, 1
+   113 000001AA B809000000              			mov eax, 9
+   114 000001AF BB01000000              			mov ebx, 1
+   115 000001B4 B809000000              			mov eax, 9
+   116 000001B9 B900000000              			mov ecx, 0
+   117 000001BE BB01000000              			mov ebx, 1
+   118 000001C3 B809000000              			mov eax, 9
+   119 000001C8 B900000000              			mov ecx, 0
+   120 000001CD BB01000000              			mov ebx, 1
+   121 000001D2 B809000000              			mov eax, 9
+   122 000001D7 B900000000              			mov ecx, 0
+   123 000001DC BB01000000              			mov ebx, 1
+   124 000001E1 B809000000              			mov eax, 9
+   125 000001E6 B900000000              			mov ecx, 0
+   126 000001EB BB01000000              			mov ebx, 1
+   127 000001F0 B809000000              			mov eax, 9
+   128 000001F5 B900000000              			mov ecx, 0
+   129 000001FA BB01000000              			mov ebx, 1
+   130 000001FF B809000000              			mov eax, 9
+   131 00000204 B900000000              			mov ecx, 0
+   132 00000209 BB01000000              			mov ebx, 1
+   133 0000020E B809000000              			mov eax, 9
+   134 00000213 BB01000000              			mov ebx, 1
+   135 00000218 B809000000              			mov eax, 9
+   136 0000021D B900000000              			mov ecx, 0
+   137 00000222 BB01000000              			mov ebx, 1
+   138 00000227 B809000000              			mov eax, 9
+   139 0000022C B900000000              			mov ecx, 0
+   140 00000231 BB01000000              			mov ebx, 1
+   141 00000236 B809000000              			mov eax, 9
+   142 0000023B B900000000              			mov ecx, 0
+   143 00000240 BB01000000              			mov ebx, 1
+   144 00000245 B809000000              			mov eax, 9
+   145 0000024A B900000000              			mov ecx, 0
+   146 0000024F BB01000000              			mov ebx, 1
+   147 00000254 B809000000              			mov eax, 9
+   148 00000259 B900000000              			mov ecx, 0
+   149 0000025E BB01000000              			mov ebx, 1
+   150 00000263 B809000000              			mov eax, 9
+   151 00000268 B900000000              			mov ecx, 0
+   152 0000026D BB01000000              			mov ebx, 1
+   153 00000272 B809000000              			mov eax, 9
+   154 00000277 BB01000000              			mov ebx, 1
+   155 0000027C B809000000              			mov eax, 9
+   156 00000281 B900000000              			mov ecx, 0
+   157 00000286 BB01000000              			mov ebx, 1
+   158 0000028B B809000000              			mov eax, 9
+   159 00000290 B900000000              			mov ecx, 0
+   160 00000295 BB01000000              			mov ebx, 1
+   161 0000029A B809000000              			mov eax, 9
+   162 0000029F B900000000              			mov ecx, 0
+   163 000002A4 BB01000000              			mov ebx, 1
+   164 000002A9 B809000000              			mov eax, 9
+   165 000002AE B900000000              			mov ecx, 0
+   166 000002B3 BB01000000              			mov ebx, 1
+   167 000002B8 B809000000              			mov eax, 9
+   168 000002BD B900000000              			mov ecx, 0
+   169 000002C2 BB01000000              			mov ebx, 1
+   170 000002C7 B809000000              			mov eax, 9
+   171 000002CC B900000000              			mov ecx, 0
+   172 000002D1 BB01000000              			mov ebx, 1
+   173 000002D6 B809000000              			mov eax, 9
+   174 000002DB BB01000000              			mov ebx, 1
+   175 000002E0 B809000000              			mov eax, 9
+   176 000002E5 B900000000              			mov ecx, 0
+   177 000002EA BB01000000              			mov ebx, 1
+   178 000002EF B809000000              			mov eax, 9
+   179 000002F4 B900000000              			mov ecx, 0
+   180 000002F9 BB01000000              			mov ebx, 1
+   181 000002FE B809000000              			mov eax, 9
+   182 00000303 B900000000              			mov ecx, 0
+   183 00000308 BB01000000              			mov ebx, 1
+   184 0000030D B809000000              			mov eax, 9
+   185 00000312 B900000000              			mov ecx, 0
+   186 00000317 BB01000000              			mov ebx, 1
+   187 0000031C B809000000              			mov eax, 9
+   188 00000321 B900000000              			mov ecx, 0
+   189 00000326 BB01000000              			mov ebx, 1
+   190 0000032B B809000000              			mov eax, 9
+   191 00000330 B900000000              			mov ecx, 0
+   192 00000335 BB01000000              			mov ebx, 1
+   193 0000033A B809000000              			mov eax, 9
+   194 0000033F BB01000000              			mov ebx, 1
+   195 00000344 B809000000              			mov eax, 9
+   196 00000349 B900000000              			mov ecx, 0
+   197 0000034E BB01000000              			mov ebx, 1
+   198 00000353 B809000000              			mov eax, 9
+   199 00000358 B900000000              			mov ecx, 0
+   200 0000035D BB01000000              			mov ebx, 1
+   201 00000362 B809000000              			mov eax, 9
+   202 00000367 B900000000              			mov ecx, 0
+   203 0000036C BB01000000              			mov ebx, 1
+   204 00000371 B809000000              			mov eax, 9
+   205 00000376 B900000000              			mov ecx, 0
+   206 0000037B BB01000000              			mov ebx, 1
+   207 00000380 B809000000              			mov eax, 9
+   208 00000385 B900000000              			mov ecx, 0
+   209 0000038A BB01000000              			mov ebx, 1
+   210 0000038F B809000000              			mov eax, 9
+   211 00000394 B900000000              			mov ecx, 0
+   212 00000399 BB01000000              			mov ebx, 1
+   213 0000039E B809000000              			mov eax, 9
+   214 000003A3 E26B                    		loop label
+   214          ******************       error: short jump is out of range
+   214          ******************       warning: byte data exceeds bounds [-w+number-overflow]
+   215 000003A5 B800000000              		mov eax, 0
+   216 000003AA BB00000000              		mov ebx, 0
+   217 000003AF 48                      		dec eax
+   218 000003B0 4B                      		dec ebx    
+   219                                  														;Linux Only 
+   220 000003B1 B8[00000000]            		mov   eax, openPrompt		;move address into eax
+   221 000003B6 A1[00000000]            		mov   eax, [openPrompt] ;move data into eax
+   222                                  	
+   223                                  		;loop that sets all values in array to all 9s	
+   224 000003BB B9E8030000              		mov		ecx, myArray.lengthof	;move # of items into ecx (counter)
+   225 000003C0 BE[00000000]            		mov		esi, myArray					;move address of array into esi		
+   226                                  		Loop1:
+   227 000003C5 C70699999999            			mov dword [esi], 99999999h			;move into the current address' value all 9s
+   228 000003CB 83C604                  			add esi, myArray.type			;move to the next element by adding 4 bytes (double word)
+   229 000003CE E2F5                    		loop Loop1									;automatically dec ecx
+   230                                  			
+   231                                  		
+   232                                  														;Windows
+   233                                  		; 
+   234 000003D0 68[16000000]                push	closePrompt			;The prompt address - argument #1
+   235 000003D5 E8(00000000)                call  	PrintString
+   236 000003DA E8(00000000)                call  	Printendl
+   237                                      
+   238 000003DF 90                          nop
+   239                                  ;
+   240                                  ;Setup the registers for exit and poke the kernel
+   241 000003E0 B801000000              	mov		eax,sys_exit				;What are we going to do? Exit!
+   242 000003E5 BB00000000              	mov		ebx,0						;Return code
+   243 000003EA CD80                    	int		80h							;Poke the kernel

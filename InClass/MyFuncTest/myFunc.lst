@@ -1,0 +1,18 @@
+     1                                  global func1
+     2                                  
+     3                                  ;func1 is global
+     4                                  ;	usable from other files if linked
+     5                                  func1:
+     6 00000000 90                      	nop
+     7 00000001 B801000000              	mov eax, 1
+     8 00000006 BB02000000              	mov ebx, 2
+     9 0000000B E802000000              	call func2
+    10 00000010 90                      	nop
+    11 00000011 C3                      ret
+    12                                  
+    13                                  ;func2 is not global
+    14                                  ;	not usable from other files when linked
+    15                                  ;	only usable from this file
+    16                                  func2:
+    17 00000012 90                      	nop
+    18 00000013 C3                      ret
