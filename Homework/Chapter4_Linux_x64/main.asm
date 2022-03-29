@@ -21,16 +21,16 @@ SECTION .data
 	resultsPromptHex	db	"Printing the contents of 'results' in hex: ", 0h
 	resultsPromptDec	db	"Printing the contents of 'results' in dec: ", 0h
 
-	row1					db	11h, 22h, 33h, 44h					;define 4 bytes				 (1 byte each)
+	row1					db	11h, 22h, 33h, 44h, 55h					;define 4 bytes				 (1 byte each)
 		.sizeof				equ	$-row1
 		.lengthof			equ row1.sizeof / 1
-	row2					dw	1111h, 2222h, 3333h, 4444h  ;define 4 words				 (2 bytes each)
+	row2					dw	1111h, 2222h, 3333h, 4444h, 5555h  ;define 4 words				 (2 bytes each)
 		.sizeof				equ	$-row2
 		.lengthof			equ row2.sizeof / 2
-	row3					dd  1111h, 2222h, 3333h, 4444h	;define 4 double words (4 bytes each)
+	row3					dd  1111h, 2222h, 3333h, 4444h, 5555h	;define 4 double words (4 bytes each)
 		.sizeof				equ	$-row3
 		.lengthof			equ row3.sizeof / 4
-	row4					dq  2222h, 4444h, 6666h, 8888h  ;define 4 quad words   (8 bytes each)
+	row4					dq  2222h, 4444h, 6666h, 8888h, 0aaaah  ;define 4 quad words   (8 bytes each)
 		.sizeof				equ	$-row4
 		.lengthof			equ row4.sizeof / 8	
 
