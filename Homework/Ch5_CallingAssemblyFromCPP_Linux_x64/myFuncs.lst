@@ -1,0 +1,60 @@
+     1                                  ;Make these functions available to other files
+     2                                  global addTwo
+     3                                  global addArray
+     4                                  global swapArrays
+     5                                  
+     6                                  ;Description :addTwo -> Adds two values together
+     7                                  ;
+     8                                  ;	rdi :: the first parameter
+     9                                  ;	rsi :: the second parameter
+    10                                  ;	rax :: return register
+    11                                  addTwo:      
+    12 00000000 90                      	nop
+    13 00000001 4889F8                  	mov rax, rdi	;move first parameter to rax		
+    14 00000004 4801F0                  	add rax, rsi	;add second parameter to rax
+    15 00000007 C3                      	ret
+    16                                  ;addTwo END
+    17                                  
+    18                                  ;Description :addArray -> Adds all the elements of an array of qwords
+    19                                  ;
+    20                                  ;	rdi :: first param (pointer to an array of qwords, 8 byte elements)
+    21                                  ;	rsi :: second param (number of items in array)
+    22                                  ;	rax :: return register
+    23                                  addArray:
+    24 00000008 51                      	push rcx		;save rcx
+    25 00000009 4889F1                  	mov rcx, rsi		;loop counter
+    26 0000000C B800000000              	mov rax, 0		;zero out rax for accurate sum
+    27                                  	L1:
+    28 00000011 480307                  		add rax, [rdi]	;add 8 byte value at address rdi to rax
+    29 00000014 4883C708                		add rdi, 8	;add 8 bytes to rdi, so we point to the next element
+    30 00000018 E2F7                    	loop L1
+    31 0000001A 59                      	pop rcx			;restore rcx
+    32 0000001B C3                      	ret
+    33                                  ;addArray END
+    34                                  
+    35                                  
+    36                                  ;Description :swapArrays -> Switches the contents of two same length arrays with each other
+    37                                  ;
+    38                                  ;Precondition : arrays must be same length
+    39                                  ;
+    40                                  ;	rdi :: first param (pointer to qword array, 8 byte elements)
+    41                                  ;	rsi :: second param (pointer to qword array, 8 byte elements)
+    42                                  ;	rdx :: third param (length of the arrays)
+    43                                  ;	rax :: "void function" (no specific return type)
+    44                                  swapArrays:
+    45 0000001C 51                      	push rcx		;Save loop counter register
+    46 0000001D 50                      	push rax		;I figured that this was ok, because for a "void function" a programmer might assume that it doesn't change rax
+    47 0000001E 4889D1                  	mov rcx, rdx		;move third param (length) to loop counter
+    48                                  	L2:
+    49 00000021 488B07                  		mov rax, [rdi]	; Swap code
+    50 00000024 488B16                  		mov rdx, [rsi]	;
+    51 00000027 488917                  		mov [rdi], rdx	;
+    52 0000002A 488906                  		mov [rsi], rax	;
+    53                                  
+    54 0000002D 4883C708                		add rdi, 8	; Increase array pointers by 8 bytes (quadword) since we expect long long sized elements
+    55 00000031 4883C608                		add rsi, 8	;
+    56 00000035 E2EA                    	loop L2
+    57 00000037 58                      	pop rax
+    58 00000038 59                      	pop rcx
+    59 00000039 C3                      	ret
+    60                                  ;swapArrays END
