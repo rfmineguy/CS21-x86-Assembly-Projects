@@ -5,7 +5,7 @@ void printArray(long long array[], long long size);
 
 int main() {
 	long long ARRAY_SIZE = 10;
-	int arrayTotal = 0;
+	int arrayTotal = 0;					//just for storing the total from the 'addArray' function. not being passed to any function
 	long long array[ARRAY_SIZE] = {0, 45, 32};
 	
 	long long array1[ARRAY_SIZE] = {93, 41, 42, 874, 1};
