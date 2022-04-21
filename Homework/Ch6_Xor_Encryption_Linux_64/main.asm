@@ -62,6 +62,7 @@ _start:
     	call	PrintString			;
     	call	Printendl			;
     	    
+	do_while:
     	call	PrintMenu			; Print the menu
 
 	mov 	rax, 0
@@ -73,12 +74,11 @@ _start:
 	;call	PrintString			;
 	;call	Printendl			;
 
-	do_while:
-						; Begin "switch" statement
 	mov 	rsi, caseTable			;  	Move address of caseTable to esi
 	mov 	rcx, caseTable.numEntries	;
-	mov	rax, 0
-	mov 	al, '1'				; THIS IS TEMPORARY, FIX THIS
+	;mov	rax, 0
+	;mov 	al, '1'				; THIS IS TEMPORARY, FIX THIS
+	mov 	al, [menuInputBuffer]
 	L1:	
 		cmp al, [rsi]
 		jne L2
@@ -89,7 +89,7 @@ _start:
 		loop L1
 		call DefaultFunc
 	L3:
-		
+	jmp do_while		
 
     	push	closePrompt			;The prompt address - argument #1
     	call  	PrintString
@@ -153,9 +153,9 @@ FuncB:
 	push encryptKeyP			;Prompt user for encrypt key
 	call PrintString                        ;
 	mov rax, 0                              ;
-	;push plainTextEncryptionKey		;Get encrypt key from user
-	;push plainTextEncryptionKey.lengthof    ;
-	;call ReadText                           ;=============================
+	push plainTextEncryptionKey		;Get encrypt key from user
+	push plainTextEncryptionKey.lengthof    ;
+	call ReadText                           ;=============================
 	
 	push plainTextEncryptionKey		;testing only
 	call PrintString			;
@@ -168,6 +168,9 @@ FuncC:
 	call Printendl
 	ret
 
+;FuncD
+;Stack - the encryption key string pointer
+;Returns - nothing
 FuncD:
 	push plainTextEncryptionKey
 	call PrintString
@@ -178,13 +181,18 @@ FuncE:
 	ret
 FuncF:
 	ret
+
 DefaultFunc:
 	push defP
 	call PrintString
 	call Printendl
 	ret
 FuncExit:
-	ret
+	push closePrompt
+	call PrintString
+	call Printendl
+	call Exit
+	ret					;unnecessary return as we exit, but for completion sake
 
 PrintTest:
 	push testP
