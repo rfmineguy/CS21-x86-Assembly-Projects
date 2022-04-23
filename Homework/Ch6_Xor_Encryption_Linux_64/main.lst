@@ -851,17 +851,17 @@
     24 00000101 [ED00000000000000]      		dq	InputStrFunc					;enter input string
     25                                  	.entrySize	equ $-caseTable					;
     26 00000109 32                      		db	'2'						;
-    27 0000010A [2201000000000000]      		dq	InputEncryptStrFunc				;enter encrypt key
+    27 0000010A [3901000000000000]      		dq	InputEncryptStrFunc				;enter encrypt key
     28 00000112 33                      		db	'3'						;
-    29 00000113 [5701000000000000]      		dq	PrintInputStrFunc				;print input string
+    29 00000113 [8501000000000000]      		dq	PrintInputStrFunc				;print input string
     30 0000011B 34                      		db	'4'						;
-    31 0000011C [6701000000000000]      		dq	PrintEncryptStrFunc				;print encrypt key
+    31 0000011C [9501000000000000]      		dq	PrintEncryptStrFunc				;print encrypt key
     32 00000124 35                      		db	'5'						;
-    33 00000125 [7701000000000000]      		dq	EncryptFunc					;encrypt/display string
+    33 00000125 [A501000000000000]      		dq	EncryptFunc					;encrypt/display string
     34 0000012D 36                      		db	'6'						;
-    35 0000012E [DB01000000000000]      		dq	DecryptFunc					;decrypt/display string
+    35 0000012E [2002000000000000]      		dq	DecryptFunc					;decrypt/display string
     36 00000136 78                      		db	'x'						;
-    37 00000137 [5102000000000000]      		dq	FuncExit					;
+    37 00000137 [AD02000000000000]      		dq	FuncExit					;
     38                                  	.numEntries	equ ($-caseTable)/caseTable.entrySize		;	
     39                                  
     40 0000013F 506C6561736520656E-     	inputStringP	db	"Please enter a string: ",0h
@@ -927,7 +927,7 @@
     94                                  	L2:
     95 00000048 4883C609                		add rsi, caseTable.entrySize
     96 0000004C E2F1                    		loop L1
-    97 0000004E E8EC010000              		call DefaultFunc
+    97 0000004E E848020000              		call DefaultFunc
     98                                  	L3:
     99 00000053 EBBB                    	jmp do_while		
    100                                  
@@ -935,7 +935,7 @@
    102 0000005A E8(00000000)                	call  	PrintString
    103 0000005F E8(00000000)                	call  	Printendl
    104                                  
-   105 00000064 E90D020000                  	jmp Exit
+   105 00000064 E969020000                  	jmp Exit
    106 00000069 90                          	nop
    107                                  
    108                                  ; Print the menu 
@@ -980,158 +980,197 @@
    147 000000E7 E8(00000000)            	call	PrintString
    148 000000EC C3                      	ret
    149                                  
-   150                                  InputStrFunc:
-   151 000000ED 68[3F010000]            	push inputStringP			;Prompt user for input string
-   152 000000F2 E8(00000000)            	call PrintString			;
-   153 000000F7 B800000000              	mov rax, 0				;
-   154 000000FC 68[FF000000]            	push plainTextInput			;Get input string from user
-   155 00000101 68FF000000              	push plainTextInput.lengthof		;
-   156 00000106 E8(00000000)            	call ReadText				;==============================
-   157 0000010B C680[FF000000]00        	mov BYTE [plainTextInput + rax], 0
-   158                                  
-   159 00000112 68[FF000000]            	push plainTextInput			;testing only
-   160 00000117 E8(00000000)            	call PrintString			;
-   161 0000011C E8(00000000)            	call Printendl				;
-   162                                  	
-   163 00000121 C3                      	ret
-   164                                  
-   165                                  InputEncryptStrFunc:
-   166 00000122 68[57010000]            	push encryptKeyP			;Prompt user for encrypt key
-   167 00000127 E8(00000000)            	call PrintString                        ;
-   168 0000012C B800000000              	mov rax, 0                              ;
-   169 00000131 68[FE010000]            	push plainTextEncryptionKey		;Get encrypt key from user
-   170 00000136 68FF000000              	push plainTextEncryptionKey.lengthof    ;
-   171 0000013B E8(00000000)            	call ReadText                           ;=============================
-   172 00000140 C680[FE010000]00        	mov BYTE [plainTextEncryptionKey + rax], 0
-   173                                  
-   174 00000147 68[FE010000]            	push plainTextEncryptionKey		;testing only
-   175 0000014C E8(00000000)            	call PrintString			;
-   176 00000151 E8(00000000)            	call Printendl				;
-   177                                  
-   178 00000156 C3                      	ret
-   179                                  
-   180                                  PrintInputStrFunc:
-   181 00000157 68[FF000000]            	push plainTextInput
-   182 0000015C E8(00000000)            	call PrintString
-   183 00000161 E8(00000000)            	call Printendl
-   184 00000166 C3                      	ret
-   185                                  
-   186                                  ;FuncD - prints the encryption key in plain text
-   187                                  ;	 used via the table driven selection
-   188                                  PrintEncryptStrFunc:
-   189 00000167 68[FE010000]            	push plainTextEncryptionKey
-   190 0000016C E8(00000000)            	call PrintString
-   191 00000171 E8(00000000)            	call Printendl
-   192 00000176 C3                      	ret
-   193                                  
-   194                                  ;FuncE - encrypt the input string using the encryption key
-   195                                  ;	would this be easier with indexed addressing
-   196                                  ;	store encrypted string in 'encryptedString'
-   197                                  ;	finally print the resulting string
-   198                                  EncryptFunc:
-   199 00000177 48BE-                   	mov rsi, plainTextInput			; keep track of current position in our inputString	(mem addr)
-   199 00000179 [FF00000000000000] 
-   200 00000181 48BF-                   	mov rdi, plainTextEncryptionKey		; keep track of current position in our	encryptKey	(mem addr)
-   200 00000183 [FE01000000000000] 
-   201 0000018B 48BA-                   	mov rdx, encryptedString		; keep track of current position in our encryptedString (mem addr)
-   201 0000018D [FD02000000000000] 
-   202                                  	
-   203                                  	
-   204                                  	; *(ecryptString + rdx) = *(plainTextInput + rsi) ^ *(plainTextEncryptionKey + rdx)
-   205                                  	EncryptLoop:
-   206 00000195 B800000000              		mov rax, 0				; clear rax for accurate calculation
-   207 0000019A BB00000000              		mov rbx, 0
-   208 0000019F 8A1E                    		mov bl, BYTE [rsi]
-   209 000001A1 80FB00                  		cmp bl, 0h			; 0ah is 'NL' (newline)
-   210 000001A4 7420                    		je Break			; we found the newline, break out of the loop
-   211 000001A6 8A06                    		mov al, BYTE [rsi]			; perform xor encryption on this character
-   212 000001A8 3207                    		xor al, BYTE [rdi]			;  - xor is destructive (using ah instead of direct address)
-   213 000001AA 8802                    		mov [rdx], BYTE al			;  - store the encrypted character back into the encrypted string
-   214 000001AC 48FFC6                  		inc rsi				; move forward in memory to the next bytes
-   215 000001AF 48FFC7                  		inc rdi				;  -
-   216 000001B2 48FFC2                  		inc rdx				;  -
-   217                                  
-   218                                  						; loop rdi back to the start of the encryption key if we are at the end of it
-   219 000001B5 803F00                  		cmp BYTE [rdi], 0h		; - the encryptKey has \n too, lets use it to denote the end of the key
-   220 000001B8 750A                    		jne SkipRDIwrap			;
-   221 000001BA 48BF-                   		mov rdi, plainTextEncryptionKey ; - put the encryption key's address back into rdi and do another loop iteration
-   221 000001BC [FE01000000000000] 
-   222                                  		SkipRDIwrap:
-   223                                  
-   224 000001C4 EBCF                    	jmp EncryptLoop				; break out within the loop when done, this wont do it for me
-   225                                  
-   226                                  	Break:					; we go here when we encountre the newline in the inputString
-   227 000001C6 68[FD020000]            	push encryptedString
-   228 000001CB 68FF000000              	push 255				; max length of encrypted string
-   229 000001D0 E8(00000000)            	call PrintText
-   230 000001D5 E8(00000000)            	call Printendl
-   231                                  
-   232 000001DA C3                      	ret
-   233                                  
-   234                                  
-   235                                  DecryptFunc:
-   236 000001DB 48BE-                   	mov rsi, encryptedString		; keep track of current position in the encrypted string (mem addr)
-   236 000001DD [FD02000000000000] 
-   237 000001E5 48BF-                   	mov rdi, plainTextEncryptionKey		; keep track of current position in the encryption key (mem addr)
-   237 000001E7 [FE01000000000000] 
-   238 000001EF 48BA-                   	mov rdx, decryptedString		; keep track of current position in the decrypted string (mem addr)
-   238 000001F1 [FC03000000000000] 
-   239                                  	
-   240                                  	DecryptLoop:
-   241 000001F9 B800000000              		mov rax, 0
-   242 000001FE BB00000000              		mov rbx, 0
-   243 00000203 8A1E                    		mov bl, BYTE [rsi]
-   244 00000205 80FB00                  		cmp bl, 0h
-   245 00000208 7420                    		je BreakDecrypt
-   246 0000020A 8A06                    		mov al, BYTE [rsi]
-   247 0000020C 3207                    		xor al, BYTE [rdi]
-   248 0000020E 8802                    		mov [rdx], BYTE al
-   249 00000210 48FFC6                  		inc rsi
-   250 00000213 48FFC7                  		inc rdi
-   251 00000216 48FFC2                  		inc rdx
-   252                                  
-   253 00000219 803F00                  		cmp BYTE [rdi], 0h
-   254 0000021C 750A                    		jne SkipRDIwrapDecrypt
-   255 0000021E 48BF-                   		mov rdi, plainTextEncryptionKey
-   255 00000220 [FE01000000000000] 
-   256                                  		SkipRDIwrapDecrypt:
+   150                                  
+   151                                  ;THE ISSUE IS THAT X xor X = 0
+   152                                  
+   153                                  InputStrFunc:
+   154 000000ED B9FF000000              	mov rcx, 255				; zero out the decryptedString data
+   155 000000F2 48BA-                   	mov rdx, plainTextInput
+   155 000000F4 [FF00000000000000] 
+   156                                  	ZeroInputStr:				;
+   157 000000FC C60200                  		mov BYTE [rdx], 0h		;
+   158 000000FF 48FFC2                  		inc rdx				;
+   159 00000102 E2F8                    	loop ZeroInputStr			;
+   160                                  
+   161 00000104 68[3F010000]            	push inputStringP			;Prompt user for input string
+   162 00000109 E8(00000000)            	call PrintString			;
+   163 0000010E B800000000              	mov rax, 0				;
+   164 00000113 68[FF000000]            	push plainTextInput			;Get input string from user
+   165 00000118 68FF000000              	push plainTextInput.lengthof		;
+   166 0000011D E8(00000000)            	call ReadText				;==============================
+   167 00000122 C680[FF000000]00        	mov BYTE [plainTextInput + rax], 0
+   168                                  
+   169 00000129 68[FF000000]            	push plainTextInput			;testing only
+   170 0000012E E8(00000000)            	call PrintString			;
+   171 00000133 E8(00000000)            	call Printendl				;
+   172                                  	
+   173 00000138 C3                      	ret
+   174                                  
+   175                                  InputEncryptStrFunc:
+   176 00000139 B9FF000000              	mov rcx, 255				; zero out the decryptedString data
+   177 0000013E 48BA-                   	mov rdx, plainTextEncryptionKey
+   177 00000140 [FE01000000000000] 
+   178                                  	ZeroEncryptStr:				;
+   179 00000148 C60200                  		mov BYTE [rdx], 0h		;
+   180 0000014B 48FFC2                  		inc rdx				;
+   181 0000014E E2F8                    	loop ZeroEncryptStr			;
+   182                                  
+   183 00000150 68[57010000]            	push encryptKeyP			;Prompt user for encrypt key
+   184 00000155 E8(00000000)            	call PrintString                        ;
+   185 0000015A B800000000              	mov rax, 0                              ;
+   186 0000015F 68[FE010000]            	push plainTextEncryptionKey		;Get encrypt key from user
+   187 00000164 68FF000000              	push plainTextEncryptionKey.lengthof    ;
+   188 00000169 E8(00000000)            	call ReadText                           ;=============================
+   189 0000016E C680[FE010000]00        	mov BYTE [plainTextEncryptionKey + rax], 0
+   190                                  
+   191 00000175 68[FE010000]            	push plainTextEncryptionKey		;testing only
+   192 0000017A E8(00000000)            	call PrintString			;
+   193 0000017F E8(00000000)            	call Printendl				;
+   194                                  
+   195 00000184 C3                      	ret
+   196                                  
+   197                                  PrintInputStrFunc:
+   198 00000185 68[FF000000]            	push plainTextInput
+   199 0000018A E8(00000000)            	call PrintString
+   200 0000018F E8(00000000)            	call Printendl
+   201 00000194 C3                      	ret
+   202                                  
+   203                                  ;FuncD - prints the encryption key in plain text
+   204                                  ;	 used via the table driven selection
+   205                                  PrintEncryptStrFunc:
+   206 00000195 68[FE010000]            	push plainTextEncryptionKey
+   207 0000019A E8(00000000)            	call PrintString
+   208 0000019F E8(00000000)            	call Printendl
+   209 000001A4 C3                      	ret
+   210                                  
+   211                                  ;FuncE - encrypt the input string using the encryption key
+   212                                  ;	would this be easier with indexed addressing
+   213                                  ;	store encrypted string in 'encryptedString'
+   214                                  ;	finally print the resulting string
+   215                                  EncryptFunc:
+   216 000001A5 48BE-                   	mov rsi, plainTextInput			; keep track of current position in our inputString	(mem addr)
+   216 000001A7 [FF00000000000000] 
+   217 000001AF 48BF-                   	mov rdi, plainTextEncryptionKey		; keep track of current position in our	encryptKey	(mem addr)
+   217 000001B1 [FE01000000000000] 
+   218 000001B9 48BA-                   	mov rdx, encryptedString		; keep track of current position in our encryptedString (mem addr)
+   218 000001BB [FD02000000000000] 
+   219                                  	
+   220 000001C3 B9FF000000              	mov rcx, 255				; zero out the decryptedString data
+   221                                  	ZeroEncrypted:				;
+   222 000001C8 C60200                  		mov BYTE [rdx], 0h		;
+   223 000001CB 48FFC2                  		inc rdx				;
+   224 000001CE E2F8                    	loop ZeroEncrypted			;
+   225 000001D0 48BA-                   	mov rdx, encryptedString		;
+   225 000001D2 [FD02000000000000] 
+   226                                  	
+   227                                  	; *(ecryptString + rdx) = *(plainTextInput + rsi) ^ *(plainTextEncryptionKey + rdx)
+   228                                  	EncryptLoop:
+   229 000001DA B800000000              		mov rax, 0				; clear rax for accurate calculation
+   230 000001DF BB00000000              		mov rbx, 0
+   231 000001E4 8A1E                    		mov bl, BYTE [rsi]
+   232 000001E6 80FB00                  		cmp bl, 0h			; 0h is 'NUL'
+   233 000001E9 7420                    		je Break			; we found the newline, break out of the loop
+   234 000001EB 8A06                    		mov al, BYTE [rsi]			; perform xor encryption on this character
+   235 000001ED 3207                    		xor al, BYTE [rdi]			;  - xor is destructive (using ah instead of direct address)
+   236 000001EF 8802                    		mov [rdx], BYTE al			;  - store the encrypted character back into the encrypted string
+   237 000001F1 48FFC6                  		inc rsi				; move forward in memory to the next bytes
+   238 000001F4 48FFC7                  		inc rdi				;  -
+   239 000001F7 48FFC2                  		inc rdx				;  -
+   240                                  
+   241                                  						; loop rdi back to the start of the encryption key if we are at the end of it
+   242 000001FA 803F0A                  		cmp BYTE [rdi], 0ah		; - the encryptKey has \n too, lets use it to denote the end of the key
+   243 000001FD 740A                    		je  SkipRDIwrap			;
+   244 000001FF 48BF-                   		mov rdi, plainTextEncryptionKey ; - put the encryption key's address back into rdi and do another loop iteration
+   244 00000201 [FE01000000000000] 
+   245                                  		SkipRDIwrap:
+   246                                  
+   247 00000209 EBCF                    	jmp EncryptLoop				; break out within the loop when done, this wont do it for me
+   248                                  
+   249                                  	;mov BYTE [rdx], 0h
+   250                                  	Break:					; we go here when we encountre the newline in the inputString
+   251 0000020B 68[FD020000]            	push encryptedString
+   252 00000210 68FF000000              	push 255				; max length of encrypted string
+   253 00000215 E8(00000000)            	call PrintText
+   254 0000021A E8(00000000)            	call Printendl
+   255                                  
+   256 0000021F C3                      	ret
    257                                  
-   258 00000228 EBCF                    	jmp DecryptLoop
-   259                                  	
-   260                                  	BreakDecrypt:
-   261 0000022A 68[FC030000]            	push decryptedString
-   262 0000022F 68FF000000              	push 255
-   263 00000234 E8(00000000)            	call PrintText
-   264 00000239 E8(00000000)            	call Printendl
-   265 0000023E C3                      	ret
-   266                                  
-   267                                  DefaultFunc:
-   268 0000023F 68[78010000]            	push testP
-   269 00000244 6A06                    	push testP.length
-   270 00000246 E8(00000000)            	call PrintText
-   271 0000024B E8(00000000)            	call Printendl
-   272 00000250 C3                      	ret
-   273                                  FuncExit:
-   274 00000251 68[16000000]            	push closePrompt
-   275 00000256 E8(00000000)            	call PrintString
-   276 0000025B E8(00000000)            	call Printendl
-   277 00000260 E811000000              	call Exit
-   278 00000265 C3                      	ret					;unnecessary return as we exit, but for completion sake
-   279                                  
-   280                                  PrintTest:
-   281                                  	;push testP
-   282                                  	;push testP.length
-   283                                  	;call PrintText
-   284                                  	
-   285 00000266 68[78010000]            	push testP
-   286 0000026B E8(00000000)            	call PrintString
-   287 00000270 E8(00000000)            	call Printendl
-   288 00000275 C3                      	ret
-   289                                  
-   290                                  ;
-   291                                  ;Setup the registers for exit and poke the kernel
-   292                                  ;Exit: 
-   293                                  Exit:
-   294 00000276 B83C000000              	mov		rax, 60					;60 = system exit
-   295 0000027B BF00000000              	mov		rdi, 0					;0 = return code
-   296 00000280 0F05                    	syscall							;Poke the kernel
+   258                                  
+   259                                  DecryptFunc:
+   260 00000220 48BE-                   	mov rsi, encryptedString		; keep track of current position in the encrypted string (mem addr)
+   260 00000222 [FD02000000000000] 
+   261 0000022A 48BF-                   	mov rdi, plainTextEncryptionKey		; keep track of current position in the encryption key (mem addr)
+   261 0000022C [FE01000000000000] 
+   262 00000234 48BA-                   	mov rdx, decryptedString		; keep track of current position in the decrypted string (mem addr)
+   262 00000236 [FC03000000000000] 
+   263                                  	
+   264 0000023E B9FF000000              	mov rcx, 255				; zero out the decryptedString data
+   265                                  	ZeroDecrypted:				;
+   266 00000243 C60200                  		mov BYTE [rdx], 0h		;
+   267 00000246 48FFC2                  		inc rdx				;
+   268 00000249 E2F8                    	loop ZeroDecrypted			;
+   269 0000024B 48BA-                   	mov rdx, decryptedString		;
+   269 0000024D [FC03000000000000] 
+   270                                  
+   271                                  	DecryptLoop:				; begin decrypting the encryptedString
+   272 00000255 B800000000              		mov rax, 0			;
+   273 0000025A BB00000000              		mov rbx, 0			;
+   274 0000025F 8A1E                    		mov bl, BYTE [rsi]		;  - check if we've made it to the end of the encryptedString using a null terminator 
+   275                                  		;cmp bl, 0ah			;  -
+   276                                  		;je BreakDecrypt			;  - if we have, we're done
+   277 00000261 8A06                    		mov al, BYTE [rsi]		; perform xor encryption 
+   278 00000263 3207                    		xor al, BYTE [rdi]		;
+   279 00000265 8802                    		mov [rdx], BYTE al		;  - save result in 'decryptedString'
+   280                                  
+   281 00000267 803A0A                  		cmp BYTE [rdx], 0ah
+   282 0000026A 741A                    		je BreakDecrypt
+   283                                  		
+   284 0000026C 48FFC6                  		inc rsi				; move on to next character
+   285 0000026F 48FFC7                  		inc rdi				;  - 
+   286 00000272 48FFC2                  		inc rdx				;  -
+   287                                  
+   288 00000275 803F0A                  		cmp BYTE [rdi], 0ah		; check if we need to wrap the key
+   289 00000278 740A                    		je  SkipRDIwrapDecrypt		;
+   290 0000027A 48BF-                   		mov rdi, plainTextEncryptionKey	;
+   290 0000027C [FE01000000000000] 
+   291                                  		SkipRDIwrapDecrypt:		;
+   292                                  
+   293 00000284 EBCF                    	jmp DecryptLoop
+   294                                  	
+   295                                  	BreakDecrypt:
+   296 00000286 68[FC030000]            	push decryptedString
+   297 0000028B 68FF000000              	push 255
+   298 00000290 E8(00000000)            	call PrintText
+   299 00000295 E8(00000000)            	call Printendl
+   300 0000029A C3                      	ret
+   301                                  
+   302                                  DefaultFunc:
+   303 0000029B 68[78010000]            	push testP
+   304 000002A0 6A06                    	push testP.length
+   305 000002A2 E8(00000000)            	call PrintText
+   306 000002A7 E8(00000000)            	call Printendl
+   307 000002AC C3                      	ret
+   308                                  FuncExit:
+   309 000002AD 68[16000000]            	push closePrompt
+   310 000002B2 E8(00000000)            	call PrintString
+   311 000002B7 E8(00000000)            	call Printendl
+   312 000002BC E811000000              	call Exit
+   313 000002C1 C3                      	ret					;unnecessary return as we exit, but for completion sake
+   314                                  
+   315                                  PrintTest:
+   316                                  	;push testP
+   317                                  	;push testP.length
+   318                                  	;call PrintText
+   319                                  	
+   320 000002C2 68[78010000]            	push testP
+   321 000002C7 E8(00000000)            	call PrintString
+   322 000002CC E8(00000000)            	call Printendl
+   323 000002D1 C3                      	ret
+   324                                  
+   325                                  ;
+   326                                  ;Setup the registers for exit and poke the kernel
+   327                                  ;Exit: 
+   328                                  Exit:
+   329 000002D2 B83C000000              	mov		rax, 60					;60 = system exit
+   330 000002D7 BF00000000              	mov		rdi, 0					;0 = return code
+   331 000002DC 0F05                    	syscall							;Poke the kernel

@@ -147,7 +147,17 @@ PrintMenu:
 	call	PrintString
 	ret
 
+
+;THE ISSUE IS THAT X xor X = 0
+
 InputStrFunc:
+	mov rcx, 255				; zero out the decryptedString data
+	mov rdx, plainTextInput
+	ZeroInputStr:				;
+		mov BYTE [rdx], 0h		;
+		inc rdx				;
+	loop ZeroInputStr			;
+
 	push inputStringP			;Prompt user for input string
 	call PrintString			;
 	mov rax, 0				;
@@ -163,6 +173,13 @@ InputStrFunc:
 	ret
 
 InputEncryptStrFunc:
+	mov rcx, 255				; zero out the decryptedString data
+	mov rdx, plainTextEncryptionKey
+	ZeroEncryptStr:				;
+		mov BYTE [rdx], 0h		;
+		inc rdx				;
+	loop ZeroEncryptStr			;
+
 	push encryptKeyP			;Prompt user for encrypt key
 	call PrintString                        ;
 	mov rax, 0                              ;
@@ -200,13 +217,19 @@ EncryptFunc:
 	mov rdi, plainTextEncryptionKey		; keep track of current position in our	encryptKey	(mem addr)
 	mov rdx, encryptedString		; keep track of current position in our encryptedString (mem addr)
 	
+	mov rcx, 255				; zero out the decryptedString data
+	ZeroEncrypted:				;
+		mov BYTE [rdx], 0h		;
+		inc rdx				;
+	loop ZeroEncrypted			;
+	mov rdx, encryptedString		;
 	
 	; *(ecryptString + rdx) = *(plainTextInput + rsi) ^ *(plainTextEncryptionKey + rdx)
 	EncryptLoop:
 		mov rax, 0				; clear rax for accurate calculation
 		mov rbx, 0
 		mov bl, BYTE [rsi]
-		cmp bl, 0h			; 0ah is 'NL' (newline)
+		cmp bl, 0h			; 0h is 'NUL'
 		je Break			; we found the newline, break out of the loop
 		mov al, BYTE [rsi]			; perform xor encryption on this character
 		xor al, BYTE [rdi]			;  - xor is destructive (using ah instead of direct address)
@@ -216,13 +239,14 @@ EncryptFunc:
 		inc rdx				;  -
 
 						; loop rdi back to the start of the encryption key if we are at the end of it
-		cmp BYTE [rdi], 0h		; - the encryptKey has \n too, lets use it to denote the end of the key
-		jne SkipRDIwrap			;
+		cmp BYTE [rdi], 0ah		; - the encryptKey has \n too, lets use it to denote the end of the key
+		je  SkipRDIwrap			;
 		mov rdi, plainTextEncryptionKey ; - put the encryption key's address back into rdi and do another loop iteration
 		SkipRDIwrap:
 
 	jmp EncryptLoop				; break out within the loop when done, this wont do it for me
 
+	;mov BYTE [rdx], 0h
 	Break:					; we go here when we encountre the newline in the inputString
 	push encryptedString
 	push 255				; max length of encrypted string
@@ -237,23 +261,34 @@ DecryptFunc:
 	mov rdi, plainTextEncryptionKey		; keep track of current position in the encryption key (mem addr)
 	mov rdx, decryptedString		; keep track of current position in the decrypted string (mem addr)
 	
-	DecryptLoop:
-		mov rax, 0
-		mov rbx, 0
-		mov bl, BYTE [rsi]
-		cmp bl, 0h
-		je BreakDecrypt
-		mov al, BYTE [rsi]
-		xor al, BYTE [rdi]
-		mov [rdx], BYTE al
-		inc rsi
-		inc rdi
-		inc rdx
+	mov rcx, 255				; zero out the decryptedString data
+	ZeroDecrypted:				;
+		mov BYTE [rdx], 0h		;
+		inc rdx				;
+	loop ZeroDecrypted			;
+	mov rdx, decryptedString		;
 
-		cmp BYTE [rdi], 0h
-		jne SkipRDIwrapDecrypt
-		mov rdi, plainTextEncryptionKey
-		SkipRDIwrapDecrypt:
+	DecryptLoop:				; begin decrypting the encryptedString
+		mov rax, 0			;
+		mov rbx, 0			;
+		mov bl, BYTE [rsi]		;  - check if we've made it to the end of the encryptedString using a null terminator 
+		;cmp bl, 0ah			;  -
+		;je BreakDecrypt			;  - if we have, we're done
+		mov al, BYTE [rsi]		; perform xor encryption 
+		xor al, BYTE [rdi]		;
+		mov [rdx], BYTE al		;  - save result in 'decryptedString'
+
+		cmp BYTE [rdx], 0ah
+		je BreakDecrypt
+		
+		inc rsi				; move on to next character
+		inc rdi				;  - 
+		inc rdx				;  -
+
+		cmp BYTE [rdi], 0ah		; check if we need to wrap the key
+		je  SkipRDIwrapDecrypt		;
+		mov rdi, plainTextEncryptionKey	;
+		SkipRDIwrapDecrypt:		;
 
 	jmp DecryptLoop
 	
