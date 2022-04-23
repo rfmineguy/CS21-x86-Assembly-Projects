@@ -16,7 +16,7 @@ SECTION .data
 	.line4		db	"4) Print the input Key", 0h,		;
 	.line5		db	"5) Encrypt/Display the String", 0h,	;
 	.line6		db	"6) Decrypt/Display the String", 0h,	;
-	.line7		db	"x) Exit the Programe", 0h		;
+	.line7		db	"x) Exit the Program", 0h		;
 	inputPrompt	db	"Please enter one : ", 0h		;
 	
 	caseTable:							;switch outline
@@ -39,9 +39,7 @@ SECTION .data
 
 	inputStringP	db	"Please enter a string: ",0h
 	encryptKeyP	db	"Please enter an encryption key: ",0h
-	testP		db	"Tes", 02h, "t", 0h
-	.length		equ 	$-testP
-	defP		db	"Default", 0h
+	defP		db	"That was not a valid option, try again.", 0h
 
 SECTION .bss
 	menuInputBuffer		resb	255
@@ -69,17 +67,14 @@ _start:
     	call	PrintString			;
     	call	Printendl			;
     	    
-	do_while:
+						; the meat and potatoes start here
+	do_while:				; start the main loop (dowhile), for the user input
     	call	PrintMenu			; Print the menu
 
 	mov 	rax, 0
 	push 	menuInputBuffer			; Get ready to read user input
 	push	menuInputBuffer.lengthof	;  - length of input string stored in rax
 	call	ReadText			;
-
-	;push	menuInputBuffer			; Display the user's choice
-	;call	PrintString			;
-	;call	Printendl			;
 
 	mov 	rsi, caseTable			;  	Move address of caseTable to esi
 	mov 	rcx, caseTable.numEntries	;
@@ -231,9 +226,9 @@ EncryptFunc:
 		mov bl, BYTE [rsi]
 		cmp bl, 0h			; 0h is 'NUL'
 		je Break			; we found the newline, break out of the loop
-		mov al, BYTE [rsi]			; perform xor encryption on this character
-		xor al, BYTE [rdi]			;  - xor is destructive (using ah instead of direct address)
-		mov [rdx], BYTE al			;  - store the encrypted character back into the encrypted string
+		mov al, BYTE [rsi]		; perform xor encryption on this character
+		xor al, BYTE [rdi]		;  - xor is destructive (using ah instead of direct address)
+		mov [rdx], BYTE al		;  - store the encrypted character back into the encrypted string
 		inc rsi				; move forward in memory to the next bytes
 		inc rdi				;  -
 		inc rdx				;  -
@@ -269,17 +264,13 @@ DecryptFunc:
 	mov rdx, decryptedString		;
 
 	DecryptLoop:				; begin decrypting the encryptedString
-		mov rax, 0			;
-		mov rbx, 0			;
-		mov bl, BYTE [rsi]		;  - check if we've made it to the end of the encryptedString using a null terminator 
-		;cmp bl, 0ah			;  -
-		;je BreakDecrypt			;  - if we have, we're done
+		mov rax, 0			; clear rax for accurate calculations using 'al'
 		mov al, BYTE [rsi]		; perform xor encryption 
 		xor al, BYTE [rdi]		;
 		mov [rdx], BYTE al		;  - save result in 'decryptedString'
 
-		cmp BYTE [rdx], 0ah
-		je BreakDecrypt
+		cmp BYTE [rdx], 0ah		; check if we decrypted a newline character (if we did, success)
+		je BreakDecrypt			;  - break out
 		
 		inc rsi				; move on to next character
 		inc rdi				;  - 
@@ -300,27 +291,17 @@ DecryptFunc:
 	ret
 
 DefaultFunc:
-	push testP
-	push testP.length
-	call PrintText
+	push defP
+	call PrintString
 	call Printendl
 	ret
+
 FuncExit:
 	push closePrompt
 	call PrintString
 	call Printendl
 	call Exit
 	ret					;unnecessary return as we exit, but for completion sake
-
-PrintTest:
-	;push testP
-	;push testP.length
-	;call PrintText
-	
-	push testP
-	call PrintString
-	call Printendl
-	ret
 
 ;
 ;Setup the registers for exit and poke the kernel
