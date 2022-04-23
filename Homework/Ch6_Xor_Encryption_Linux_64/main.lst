@@ -848,20 +848,20 @@
     21                                  	
     22                                  	caseTable:							;switch outline
     23 00000100 31                      		db	'1'						;
-    24 00000101 [ED00000000000000]      		dq	FuncA						;enter input string
+    24 00000101 [ED00000000000000]      		dq	InputStrFunc					;enter input string
     25                                  	.entrySize	equ $-caseTable					;
     26 00000109 32                      		db	'2'						;
-    27 0000010A [0C01000000000000]      		dq	FuncB						;enter encrypt key
+    27 0000010A [2201000000000000]      		dq	InputEncryptStrFunc				;enter encrypt key
     28 00000112 33                      		db	'3'						;
-    29 00000113 [3A01000000000000]      		dq	FuncC						;print input string
+    29 00000113 [5701000000000000]      		dq	PrintInputStrFunc				;print input string
     30 0000011B 34                      		db	'4'						;
-    31 0000011C [4A01000000000000]      		dq	FuncD						;print encrypt key
+    31 0000011C [6701000000000000]      		dq	PrintEncryptStrFunc				;print encrypt key
     32 00000124 35                      		db	'5'						;
-    33 00000125 [5A01000000000000]      		dq	FuncE						;encrypt/display string
+    33 00000125 [7701000000000000]      		dq	EncryptFunc					;encrypt/display string
     34 0000012D 36                      		db	'6'						;
-    35 0000012E [5B01000000000000]      		dq	FuncF						;decrypt/display string
+    35 0000012E [DB01000000000000]      		dq	DecryptFunc					;decrypt/display string
     36 00000136 78                      		db	'x'						;
-    37 00000137 [6C01000000000000]      		dq	FuncExit					;
+    37 00000137 [5102000000000000]      		dq	FuncExit					;
     38                                  	.numEntries	equ ($-caseTable)/caseTable.entrySize		;	
     39                                  
     40 0000013F 506C6561736520656E-     	inputStringP	db	"Please enter a string: ",0h
@@ -871,172 +871,267 @@
     41 00000160 74657220616E20656E-
     41 00000169 6372797074696F6E20-
     41 00000172 6B65793A2000       
-    42 00000178 5465737400              	testP		db	"Test", 0h
-    43 0000017D 44656661756C7400        	defP		db	"Default", 0h
-    44                                  
-    45                                  SECTION .bss
-    46 00000000 <res 000000FF>          	menuInputBuffer		resb	255
-    47                                  	.lengthof		equ 	$-menuInputBuffer
-    48                                  
-    49 000000FF <res 000000FF>          	plainTextInput		resb	255
-    50                                  	.lengthof		equ 	$-plainTextInput
-    51                                  
-    52 000001FE <res 000000FF>          	plainTextEncryptionKey 	resb	255
-    53                                  	.lengthof		equ	$-plainTextEncryptionKey
-    54                                  
-    55                                  SECTION     .text
-    56                                  	global      _start
-    57                                  
-    58                                  _start:
-    59 00000000 90                      	nop
-    60                                  	
-    61 00000001 68[00000000]                	push	openPrompt			; Display opening message
-    62 00000006 E8(00000000)                	call	PrintString			;
-    63 0000000B E8(00000000)                	call	Printendl			;
-    64                                      	    
-    65                                  	do_while:
-    66 00000010 E855000000                  	call	PrintMenu			; Print the menu
+    42 00000178 546573027400            	testP		db	"Tes", 02h, "t", 0h
+    43                                  	.length		equ 	$-testP
+    44 0000017E 44656661756C7400        	defP		db	"Default", 0h
+    45                                  
+    46                                  SECTION .bss
+    47 00000000 <res 000000FF>          	menuInputBuffer		resb	255
+    48                                  	.lengthof		equ 	$-menuInputBuffer
+    49                                  
+    50 000000FF <res 000000FF>          	plainTextInput		resb	255
+    51                                  	.lengthof		equ 	$-plainTextInput
+    52                                  
+    53 000001FE <res 000000FF>          	plainTextEncryptionKey 	resb	255
+    54                                  	.lengthof		equ	$-plainTextEncryptionKey
+    55                                  
+    56 000002FD <res 000000FF>          	encryptedString		resb	255
+    57                                  	.lengthof		equ	$-encryptedString
+    58                                  
+    59 000003FC <res 000000FF>          	decryptedString		resb	255
+    60                                  	.lengthof		equ	$-decryptedString
+    61                                  
+    62                                  SECTION     .text
+    63                                  	global      _start
+    64                                  
+    65                                  _start:
+    66 00000000 90                      	nop
     67                                  
-    68 00000015 B800000000              	mov 	rax, 0
-    69 0000001A 68[00000000]            	push 	menuInputBuffer			; Get ready to read user input
-    70 0000001F 68FF000000              	push	menuInputBuffer.lengthof	;  - length of input string stored in rax
-    71 00000024 E8(00000000)            	call	ReadText			;
-    72                                  
-    73                                  	;push	menuInputBuffer			; Display the user's choice
-    74                                  	;call	PrintString			;
-    75                                  	;call	Printendl			;
-    76                                  
-    77 00000029 48BE-                   	mov 	rsi, caseTable			;  	Move address of caseTable to esi
-    77 0000002B [0001000000000000] 
-    78 00000033 B907000000              	mov 	rcx, caseTable.numEntries	;
-    79                                  	;mov	rax, 0
-    80                                  	;mov 	al, '1'				; THIS IS TEMPORARY, FIX THIS
-    81 00000038 8A0425[00000000]        	mov 	al, [menuInputBuffer]
-    82                                  	L1:	
-    83 0000003F 3A06                    		cmp al, [rsi]
-    84 00000041 7505                    		jne L2
-    85 00000043 FF5601                  		call NEAR [rsi + 1]		; Call a "near"by function
-    86 00000046 EB0B                    		jmp L3
-    87                                  	L2:
-    88 00000048 4883C609                		add rsi, caseTable.entrySize
-    89 0000004C E2F1                    		loop L1
-    90 0000004E E809010000              		call DefaultFunc
-    91                                  	L3:
-    92 00000053 EBBB                    	jmp do_while		
-    93                                  
-    94 00000055 68[16000000]                	push	closePrompt			;The prompt address - argument #1
-    95 0000005A E8(00000000)                	call  	PrintString
-    96 0000005F E8(00000000)                	call  	Printendl
-    97                                  
-    98 00000064 E928010000                  	jmp Exit
-    99 00000069 90                          	nop
+    68 00000001 68[00000000]                	push	openPrompt			; Display opening message
+    69 00000006 E8(00000000)                	call	PrintString			;
+    70 0000000B E8(00000000)                	call	Printendl			;
+    71                                      	    
+    72                                  	do_while:
+    73 00000010 E855000000                  	call	PrintMenu			; Print the menu
+    74                                  
+    75 00000015 B800000000              	mov 	rax, 0
+    76 0000001A 68[00000000]            	push 	menuInputBuffer			; Get ready to read user input
+    77 0000001F 68FF000000              	push	menuInputBuffer.lengthof	;  - length of input string stored in rax
+    78 00000024 E8(00000000)            	call	ReadText			;
+    79                                  
+    80                                  	;push	menuInputBuffer			; Display the user's choice
+    81                                  	;call	PrintString			;
+    82                                  	;call	Printendl			;
+    83                                  
+    84 00000029 48BE-                   	mov 	rsi, caseTable			;  	Move address of caseTable to esi
+    84 0000002B [0001000000000000] 
+    85 00000033 B907000000              	mov 	rcx, caseTable.numEntries	;
+    86                                  	;mov	rax, 0
+    87                                  	;mov 	al, '1'				; THIS IS TEMPORARY, FIX THIS
+    88 00000038 8A0425[00000000]        	mov 	al, [menuInputBuffer]
+    89                                  	L1:	
+    90 0000003F 3A06                    		cmp al, [rsi]
+    91 00000041 7505                    		jne L2
+    92 00000043 FF5601                  		call NEAR [rsi + 1]		; Call a "near"by function
+    93 00000046 EB0B                    		jmp L3
+    94                                  	L2:
+    95 00000048 4883C609                		add rsi, caseTable.entrySize
+    96 0000004C E2F1                    		loop L1
+    97 0000004E E8EC010000              		call DefaultFunc
+    98                                  	L3:
+    99 00000053 EBBB                    	jmp do_while		
    100                                  
-   101                                  ; Print the menu 
-   102                                  ;	possible optimizations available
-   103                                  ;	
-   104                                  ;	Prints the options available
-   105                                  ;	Prints an input prompt
-   106                                  PrintMenu:
-   107 0000006A 68[36000000]            	push 	menuString
-   108 0000006F E8(00000000)            	call	PrintString
-   109 00000074 E8(00000000)            	call	Printendl
-   110                                  
-   111 00000079 68[3D000000]            	push 	menuString.line1
-   112 0000007E E8(00000000)            	call	PrintString
-   113 00000083 E8(00000000)            	call	Printendl
-   114                                  
-   115 00000088 68[4F000000]            	push 	menuString.line2
-   116 0000008D E8(00000000)            	call	PrintString
-   117 00000092 E8(00000000)            	call	Printendl
-   118                                  
-   119 00000097 68[6A000000]            	push 	menuString.line3
-   120 0000009C E8(00000000)            	call	PrintString
-   121 000000A1 E8(00000000)            	call	Printendl
-   122                                  
-   123 000000A6 68[84000000]            	push 	menuString.line4
-   124 000000AB E8(00000000)            	call	PrintString
-   125 000000B0 E8(00000000)            	call	Printendl
-   126                                  
-   127 000000B5 68[9B000000]            	push 	menuString.line5
-   128 000000BA E8(00000000)            	call	PrintString
-   129 000000BF E8(00000000)            	call	Printendl
-   130                                  
-   131 000000C4 68[B9000000]            	push 	menuString.line6
-   132 000000C9 E8(00000000)            	call	PrintString
-   133 000000CE E8(00000000)            	call	Printendl
-   134                                  
-   135 000000D3 68[D7000000]            	push 	menuString.line7
-   136 000000D8 E8(00000000)            	call	PrintString
-   137 000000DD E8(00000000)            	call	Printendl
-   138                                  
-   139 000000E2 68[EC000000]            	push	inputPrompt
-   140 000000E7 E8(00000000)            	call	PrintString
-   141 000000EC C3                      	ret
-   142                                  
-   143                                  FuncA:
-   144 000000ED 68[3F010000]            	push inputStringP			;Prompt user for input string
-   145 000000F2 E8(00000000)            	call PrintString			;
-   146 000000F7 B800000000              	mov rax, 0				;
-   147 000000FC 68[FF000000]            	push plainTextInput			;Get input string from user
-   148 00000101 68FF000000              	push plainTextInput.lengthof		;
-   149 00000106 E8(00000000)            	call ReadText				;==============================
-   150                                  
-   151 0000010B C3                      	ret
-   152                                  FuncB:
-   153 0000010C 68[57010000]            	push encryptKeyP			;Prompt user for encrypt key
-   154 00000111 E8(00000000)            	call PrintString                        ;
-   155 00000116 B800000000              	mov rax, 0                              ;
-   156 0000011B 68[FE010000]            	push plainTextEncryptionKey		;Get encrypt key from user
-   157 00000120 68FF000000              	push plainTextEncryptionKey.lengthof    ;
-   158 00000125 E8(00000000)            	call ReadText                           ;=============================
-   159                                  	
-   160 0000012A 68[FE010000]            	push plainTextEncryptionKey		;testing only
-   161 0000012F E8(00000000)            	call PrintString			;
-   162 00000134 E8(00000000)            	call Printendl				;
-   163                                  
-   164 00000139 C3                      	ret
-   165                                  FuncC:
-   166 0000013A 68[FF000000]            	push plainTextInput
-   167 0000013F E8(00000000)            	call PrintString
-   168 00000144 E8(00000000)            	call Printendl
-   169 00000149 C3                      	ret
-   170                                  
-   171                                  ;FuncD
-   172                                  ;Stack - the encryption key string pointer
-   173                                  ;Returns - nothing
-   174                                  FuncD:
-   175 0000014A 68[FE010000]            	push plainTextEncryptionKey
-   176 0000014F E8(00000000)            	call PrintString
-   177 00000154 E8(00000000)            	call Printendl
-   178 00000159 C3                      	ret
+   101 00000055 68[16000000]                	push	closePrompt			;The prompt address - argument #1
+   102 0000005A E8(00000000)                	call  	PrintString
+   103 0000005F E8(00000000)                	call  	Printendl
+   104                                  
+   105 00000064 E90D020000                  	jmp Exit
+   106 00000069 90                          	nop
+   107                                  
+   108                                  ; Print the menu 
+   109                                  ;	possible optimizations available
+   110                                  ;	
+   111                                  ;	Prints the options available
+   112                                  ;	Prints an input prompt
+   113                                  PrintMenu:
+   114 0000006A 68[36000000]            	push 	menuString
+   115 0000006F E8(00000000)            	call	PrintString
+   116 00000074 E8(00000000)            	call	Printendl
+   117                                  
+   118 00000079 68[3D000000]            	push 	menuString.line1
+   119 0000007E E8(00000000)            	call	PrintString
+   120 00000083 E8(00000000)            	call	Printendl
+   121                                  
+   122 00000088 68[4F000000]            	push 	menuString.line2
+   123 0000008D E8(00000000)            	call	PrintString
+   124 00000092 E8(00000000)            	call	Printendl
+   125                                  
+   126 00000097 68[6A000000]            	push 	menuString.line3
+   127 0000009C E8(00000000)            	call	PrintString
+   128 000000A1 E8(00000000)            	call	Printendl
+   129                                  
+   130 000000A6 68[84000000]            	push 	menuString.line4
+   131 000000AB E8(00000000)            	call	PrintString
+   132 000000B0 E8(00000000)            	call	Printendl
+   133                                  
+   134 000000B5 68[9B000000]            	push 	menuString.line5
+   135 000000BA E8(00000000)            	call	PrintString
+   136 000000BF E8(00000000)            	call	Printendl
+   137                                  
+   138 000000C4 68[B9000000]            	push 	menuString.line6
+   139 000000C9 E8(00000000)            	call	PrintString
+   140 000000CE E8(00000000)            	call	Printendl
+   141                                  
+   142 000000D3 68[D7000000]            	push 	menuString.line7
+   143 000000D8 E8(00000000)            	call	PrintString
+   144 000000DD E8(00000000)            	call	Printendl
+   145                                  
+   146 000000E2 68[EC000000]            	push	inputPrompt
+   147 000000E7 E8(00000000)            	call	PrintString
+   148 000000EC C3                      	ret
+   149                                  
+   150                                  InputStrFunc:
+   151 000000ED 68[3F010000]            	push inputStringP			;Prompt user for input string
+   152 000000F2 E8(00000000)            	call PrintString			;
+   153 000000F7 B800000000              	mov rax, 0				;
+   154 000000FC 68[FF000000]            	push plainTextInput			;Get input string from user
+   155 00000101 68FF000000              	push plainTextInput.lengthof		;
+   156 00000106 E8(00000000)            	call ReadText				;==============================
+   157 0000010B C680[FF000000]00        	mov BYTE [plainTextInput + rax], 0
+   158                                  
+   159 00000112 68[FF000000]            	push plainTextInput			;testing only
+   160 00000117 E8(00000000)            	call PrintString			;
+   161 0000011C E8(00000000)            	call Printendl				;
+   162                                  	
+   163 00000121 C3                      	ret
+   164                                  
+   165                                  InputEncryptStrFunc:
+   166 00000122 68[57010000]            	push encryptKeyP			;Prompt user for encrypt key
+   167 00000127 E8(00000000)            	call PrintString                        ;
+   168 0000012C B800000000              	mov rax, 0                              ;
+   169 00000131 68[FE010000]            	push plainTextEncryptionKey		;Get encrypt key from user
+   170 00000136 68FF000000              	push plainTextEncryptionKey.lengthof    ;
+   171 0000013B E8(00000000)            	call ReadText                           ;=============================
+   172 00000140 C680[FE010000]00        	mov BYTE [plainTextEncryptionKey + rax], 0
+   173                                  
+   174 00000147 68[FE010000]            	push plainTextEncryptionKey		;testing only
+   175 0000014C E8(00000000)            	call PrintString			;
+   176 00000151 E8(00000000)            	call Printendl				;
+   177                                  
+   178 00000156 C3                      	ret
    179                                  
-   180                                  FuncE:
-   181 0000015A C3                      	ret
-   182                                  FuncF:
-   183 0000015B C3                      	ret
-   184                                  
-   185                                  DefaultFunc:
-   186 0000015C 68[7D010000]            	push defP
-   187 00000161 E8(00000000)            	call PrintString
-   188 00000166 E8(00000000)            	call Printendl
-   189 0000016B C3                      	ret
-   190                                  FuncExit:
-   191 0000016C 68[16000000]            	push closePrompt
-   192 00000171 E8(00000000)            	call PrintString
-   193 00000176 E8(00000000)            	call Printendl
-   194 0000017B E811000000              	call Exit
-   195 00000180 C3                      	ret					;unnecessary return as we exit, but for completion sake
-   196                                  
-   197                                  PrintTest:
-   198 00000181 68[78010000]            	push testP
-   199 00000186 E8(00000000)            	call PrintString
-   200 0000018B E8(00000000)            	call Printendl
-   201 00000190 C3                      	ret
-   202                                  
-   203                                  ;
-   204                                  ;Setup the registers for exit and poke the kernel
-   205                                  ;Exit: 
-   206                                  Exit:
-   207 00000191 B83C000000              	mov		rax, 60					;60 = system exit
-   208 00000196 BF00000000              	mov		rdi, 0					;0 = return code
-   209 0000019B 0F05                    	syscall							;Poke the kernel
+   180                                  PrintInputStrFunc:
+   181 00000157 68[FF000000]            	push plainTextInput
+   182 0000015C E8(00000000)            	call PrintString
+   183 00000161 E8(00000000)            	call Printendl
+   184 00000166 C3                      	ret
+   185                                  
+   186                                  ;FuncD - prints the encryption key in plain text
+   187                                  ;	 used via the table driven selection
+   188                                  PrintEncryptStrFunc:
+   189 00000167 68[FE010000]            	push plainTextEncryptionKey
+   190 0000016C E8(00000000)            	call PrintString
+   191 00000171 E8(00000000)            	call Printendl
+   192 00000176 C3                      	ret
+   193                                  
+   194                                  ;FuncE - encrypt the input string using the encryption key
+   195                                  ;	would this be easier with indexed addressing
+   196                                  ;	store encrypted string in 'encryptedString'
+   197                                  ;	finally print the resulting string
+   198                                  EncryptFunc:
+   199 00000177 48BE-                   	mov rsi, plainTextInput			; keep track of current position in our inputString	(mem addr)
+   199 00000179 [FF00000000000000] 
+   200 00000181 48BF-                   	mov rdi, plainTextEncryptionKey		; keep track of current position in our	encryptKey	(mem addr)
+   200 00000183 [FE01000000000000] 
+   201 0000018B 48BA-                   	mov rdx, encryptedString		; keep track of current position in our encryptedString (mem addr)
+   201 0000018D [FD02000000000000] 
+   202                                  	
+   203                                  	
+   204                                  	; *(ecryptString + rdx) = *(plainTextInput + rsi) ^ *(plainTextEncryptionKey + rdx)
+   205                                  	EncryptLoop:
+   206 00000195 B800000000              		mov rax, 0				; clear rax for accurate calculation
+   207 0000019A BB00000000              		mov rbx, 0
+   208 0000019F 8A1E                    		mov bl, BYTE [rsi]
+   209 000001A1 80FB00                  		cmp bl, 0h			; 0ah is 'NL' (newline)
+   210 000001A4 7420                    		je Break			; we found the newline, break out of the loop
+   211 000001A6 8A06                    		mov al, BYTE [rsi]			; perform xor encryption on this character
+   212 000001A8 3207                    		xor al, BYTE [rdi]			;  - xor is destructive (using ah instead of direct address)
+   213 000001AA 8802                    		mov [rdx], BYTE al			;  - store the encrypted character back into the encrypted string
+   214 000001AC 48FFC6                  		inc rsi				; move forward in memory to the next bytes
+   215 000001AF 48FFC7                  		inc rdi				;  -
+   216 000001B2 48FFC2                  		inc rdx				;  -
+   217                                  
+   218                                  						; loop rdi back to the start of the encryption key if we are at the end of it
+   219 000001B5 803F00                  		cmp BYTE [rdi], 0h		; - the encryptKey has \n too, lets use it to denote the end of the key
+   220 000001B8 750A                    		jne SkipRDIwrap			;
+   221 000001BA 48BF-                   		mov rdi, plainTextEncryptionKey ; - put the encryption key's address back into rdi and do another loop iteration
+   221 000001BC [FE01000000000000] 
+   222                                  		SkipRDIwrap:
+   223                                  
+   224 000001C4 EBCF                    	jmp EncryptLoop				; break out within the loop when done, this wont do it for me
+   225                                  
+   226                                  	Break:					; we go here when we encountre the newline in the inputString
+   227 000001C6 68[FD020000]            	push encryptedString
+   228 000001CB 68FF000000              	push 255				; max length of encrypted string
+   229 000001D0 E8(00000000)            	call PrintText
+   230 000001D5 E8(00000000)            	call Printendl
+   231                                  
+   232 000001DA C3                      	ret
+   233                                  
+   234                                  
+   235                                  DecryptFunc:
+   236 000001DB 48BE-                   	mov rsi, encryptedString		; keep track of current position in the encrypted string (mem addr)
+   236 000001DD [FD02000000000000] 
+   237 000001E5 48BF-                   	mov rdi, plainTextEncryptionKey		; keep track of current position in the encryption key (mem addr)
+   237 000001E7 [FE01000000000000] 
+   238 000001EF 48BA-                   	mov rdx, decryptedString		; keep track of current position in the decrypted string (mem addr)
+   238 000001F1 [FC03000000000000] 
+   239                                  	
+   240                                  	DecryptLoop:
+   241 000001F9 B800000000              		mov rax, 0
+   242 000001FE BB00000000              		mov rbx, 0
+   243 00000203 8A1E                    		mov bl, BYTE [rsi]
+   244 00000205 80FB00                  		cmp bl, 0h
+   245 00000208 7420                    		je BreakDecrypt
+   246 0000020A 8A06                    		mov al, BYTE [rsi]
+   247 0000020C 3207                    		xor al, BYTE [rdi]
+   248 0000020E 8802                    		mov [rdx], BYTE al
+   249 00000210 48FFC6                  		inc rsi
+   250 00000213 48FFC7                  		inc rdi
+   251 00000216 48FFC2                  		inc rdx
+   252                                  
+   253 00000219 803F00                  		cmp BYTE [rdi], 0h
+   254 0000021C 750A                    		jne SkipRDIwrapDecrypt
+   255 0000021E 48BF-                   		mov rdi, plainTextEncryptionKey
+   255 00000220 [FE01000000000000] 
+   256                                  		SkipRDIwrapDecrypt:
+   257                                  
+   258 00000228 EBCF                    	jmp DecryptLoop
+   259                                  	
+   260                                  	BreakDecrypt:
+   261 0000022A 68[FC030000]            	push decryptedString
+   262 0000022F 68FF000000              	push 255
+   263 00000234 E8(00000000)            	call PrintText
+   264 00000239 E8(00000000)            	call Printendl
+   265 0000023E C3                      	ret
+   266                                  
+   267                                  DefaultFunc:
+   268 0000023F 68[78010000]            	push testP
+   269 00000244 6A06                    	push testP.length
+   270 00000246 E8(00000000)            	call PrintText
+   271 0000024B E8(00000000)            	call Printendl
+   272 00000250 C3                      	ret
+   273                                  FuncExit:
+   274 00000251 68[16000000]            	push closePrompt
+   275 00000256 E8(00000000)            	call PrintString
+   276 0000025B E8(00000000)            	call Printendl
+   277 00000260 E811000000              	call Exit
+   278 00000265 C3                      	ret					;unnecessary return as we exit, but for completion sake
+   279                                  
+   280                                  PrintTest:
+   281                                  	;push testP
+   282                                  	;push testP.length
+   283                                  	;call PrintText
+   284                                  	
+   285 00000266 68[78010000]            	push testP
+   286 0000026B E8(00000000)            	call PrintString
+   287 00000270 E8(00000000)            	call Printendl
+   288 00000275 C3                      	ret
+   289                                  
+   290                                  ;
+   291                                  ;Setup the registers for exit and poke the kernel
+   292                                  ;Exit: 
+   293                                  Exit:
+   294 00000276 B83C000000              	mov		rax, 60					;60 = system exit
+   295 0000027B BF00000000              	mov		rdi, 0					;0 = return code
+   296 00000280 0F05                    	syscall							;Poke the kernel
