@@ -38,16 +38,17 @@ _start:
     					; * get second filename
     mov 	rdx, [rsp + 24]		;   - rsp + 24 is the address of the second argument excluding the program name, the second filename 
     mov 	[arg2], rdx		;   - save this address into memory
-
-    mov 	rax, [arg1]
-    push 	rax
-    call 	PrintString
-    call 	Printendl
-	
-    mov 	rax, [arg2]
-    push 	rax
-    call 	PrintString
-    call 	Printendl
+					
+					;these lines are NOT permanent. delete them when finished with program
+    mov 	rax, [arg1]		;
+    push 	rax			;
+    call 	PrintString		;
+    call 	Printendl		;
+					;
+    mov 	rax, [arg2]		;
+    push 	rax			;
+    call 	PrintString		;
+    call 	Printendl		;
 
 					;prompt user for encryption key
     push 	keyPrompt		; - arg1 for PrintString
@@ -86,8 +87,8 @@ inputKeyboard:
 	push rbp
 	mov  rbp, rsp
 
-	mov  rax, 0
-	mov  rdi, 0
+	mov  rax, 0h
+	mov  rdi, 0h
 	mov  rsi, [rsp + 8]; + 24]	;pushed regs, need to go further passed rsp
 	mov  rdx, [rsp + 16]; + 24]
 	syscall
